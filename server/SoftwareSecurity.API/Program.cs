@@ -1,3 +1,5 @@
+using DotNetEnv;
+
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.HttpOverrides;
 
@@ -5,6 +7,8 @@ using SoftwareSecurity.API.Extensions;
 using SoftwareSecurity.Application.Extensions;
 using SoftwareSecurity.Infrastructure.Extensions;
 using SoftwareSecurity.Persistence.Extensions;
+
+Env.Load("./../../.env");
 
 var builder = WebApplication.CreateBuilder(args);
 var services  = builder.Services;
@@ -14,18 +18,12 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.UseHttps();
+
 services.AddAPI(configuration)
 	.AddApplication()
 	.AddInfrastructure()
 	.AddPersistence(configuration);
-
-builder.WebHost.ConfigureKestrel(options =>
-{
-	options.ListenAnyIP(5001, listenOptions =>
-	{
-		listenOptions.UseHttps();
-	});
-});
 
 var app = builder.Build();
 

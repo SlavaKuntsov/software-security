@@ -58,8 +58,8 @@ public static class ApiExtensions
 
 		var jwtOptions = configuration.GetSection(nameof(JwtModel)).Get<JwtModel>();
 
-		var clientId = configuration["Authentication:Google:ClientId"];
-		var clientSecret = configuration["Authentication:Google:ClientSecret"];
+		var clientId = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID");
+		var clientSecret = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_SECRET");
 
 		if (string.IsNullOrWhiteSpace(clientId) || string.IsNullOrWhiteSpace(clientSecret))
 			throw new Exception("Google client data is null.");
@@ -68,7 +68,6 @@ public static class ApiExtensions
 			.AddAuthentication(options =>
 			{
 				options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-				//options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
 				options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 			})
 			.AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
@@ -96,12 +95,12 @@ public static class ApiExtensions
 					}
 				};
 			})
-			.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme) // Для Google OAuth
-			.AddGoogle(GoogleDefaults.AuthenticationScheme, options => // Для Google OAuth
+			.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme) 
+			.AddGoogle(GoogleDefaults.AuthenticationScheme, options => 
 			{
 				options.ClientId = clientId;
 				options.ClientSecret = clientSecret;
-				options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme; // Используем куки для Google
+				options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme; 
 				options.CallbackPath = "/google-response";
 			});
 
@@ -140,5 +139,18 @@ public static class ApiExtensions
 			cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
 
 		return services;
+	}
+
+	public static WebApplicationBuilder UseHttps(this WebApplicationBuilder builder)
+	{
+		builder.WebHost.ConfigureKestrel(options =>
+		{
+			options.ListenAnyIP(5001, listenOptions =>
+			{
+				listenOptions.UseHttps();
+			});
+		});
+
+		return builder;
 	}
 }
