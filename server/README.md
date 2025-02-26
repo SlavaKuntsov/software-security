@@ -1,0 +1,1 @@
+dotnet ef migrations add initial -s SoftwareSecurity.API -p SoftwareSecurity.Persistence

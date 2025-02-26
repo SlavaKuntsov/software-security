@@ -1,36 +1,55 @@
+using Microsoft.AspNetCore.CookiePolicy;
+using Microsoft.AspNetCore.HttpOverrides;
 
-namespace SoftwareSecurity.API
+using SoftwareSecurity.API.Extensions;
+using SoftwareSecurity.Application.Extensions;
+using SoftwareSecurity.Infrastructure.Extensions;
+using SoftwareSecurity.Persistence.Extensions;
+
+var builder = WebApplication.CreateBuilder(args);
+var services  = builder.Services;
+var configuration = builder.Configuration;
+
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+services.AddAPI(configuration)
+	.AddApplication()
+	.AddInfrastructure()
+	.AddPersistence(configuration);
+
+builder.WebHost.ConfigureKestrel(options =>
 {
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-            var builder = WebApplication.CreateBuilder(args);
+	options.ListenAnyIP(5001, listenOptions =>
+	{
+		listenOptions.UseHttps();
+	});
+});
 
-            // Add services to the container.
+var app = builder.Build();
 
-            builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+app.UseExceptionHandler();
 
-            var app = builder.Build();
+app.UseSwagger();
+app.UseSwaggerUI();
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+app.UseCookiePolicy(new CookiePolicyOptions
+{
+	MinimumSameSitePolicy = SameSiteMode.None,
+	HttpOnly = HttpOnlyPolicy.Always,
+	Secure = CookieSecurePolicy.Always,
+});
+app.UseHttpsRedirection();
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+	ForwardedHeaders = ForwardedHeaders.All
+});
+app.UseCors();
 
-            app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
 
-            app.UseAuthorization();
+app.MapControllers();
 
-
-            app.MapControllers();
-
-            app.Run();
-        }
-    }
-}
+app.Run();

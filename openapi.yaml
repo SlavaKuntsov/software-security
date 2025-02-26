@@ -1,0 +1,482 @@
+openapi: 3.0.0
+
+info:
+  title: Мессенджер API
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080/api
+    description: Основной сервер
+
+paths:
+  /auth/refreshToken:
+    get:
+      tags:
+        - Auth
+      summary: Получение access токена по refresh токену
+      operationId: authRefreshTokenGET
+      responses:
+        '200':
+          description: Access токен успешно обновлен
+        '400':
+          description: Refresh токен не найден в cookies
+        '404':
+          description: Пользователь не найден
+      x-swagger-router-controller: Auth
+
+  /auth/authorize:
+    get:
+      tags:
+        - Auth
+      summary: Получение данных своей учетнйо записи по access токену
+      operationId: authAuthorizeGET
+      responses:
+        '200':
+          description: Данные успешно получены
+        '401':
+          description: User ID не найден в токене
+      x-swagger-router-controller: Auth
+
+  /auth/unuthorize:
+    get:
+      tags:
+        - Auth
+      summary: Выход из учетной записи
+      operationId: authUnuthorizeGET
+      responses:
+        '200':
+          description: Успешный выход
+        '401':
+          description: User ID не найден в токене
+      x-swagger-router-controller: Auth
+
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Авторизация пользователя
+      operationId: authLoginPOST
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/auth_login_body'
+        required: true
+      responses:
+        '200':
+          description: Успешный вход
+        '401':
+          description: Неверные учетные данные
+        '404':
+          description: Пользователь не найден
+      x-swagger-router-controller: Auth
+
+  /auth/register:
+    post:
+      tags:
+        - Auth
+      summary: Регистрация нового пользователя
+      operationId: authRegisterPOST
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/auth_register_body'
+        required: true
+      responses:
+        '201':
+          description: Пользователь успешно зарегистрирован
+        '400':
+          description: Некорректные данные
+        '409':
+          description: Пользователь уже существует
+      x-swagger-router-controller: Auth
+
+  /users/{user-id}:
+    put:
+      tags:
+        - Users
+      summary: Обновление данных пользователя
+      operationId: usersUser_idPUT
+      parameters:
+        - name: user-id
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/users_userid_body'
+        required: true
+      responses:
+        '200':
+          description: Данные успешно обновлены
+        '400':
+          description: Некорректные данные
+        '404':
+          description: Пользователь не найден
+      x-swagger-router-controller: Users
+    delete:
+      tags:
+        - Users
+      summary: Удаление аккаунта пользователя
+      operationId: usersUser_idDELETE
+      parameters:
+        - name: user-id
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Аккаунт успешно удален
+        '404':
+          description: Пользователь не найден
+      x-swagger-router-controller: Users
+
+  /auth/google-login:
+    get:
+      tags:
+        - Auth
+      summary: Начало процесса входа через Google
+      operationId: authGoogleLoginGET
+      responses:
+        '302':
+          description: Перенаправление на страницу входа Google
+        '400':
+          description: Ошибка при начале процесса входа через Google
+      x-swagger-router-controller: Auth
+
+  /auth/google-response:
+    get:
+      tags:
+        - Auth
+      summary: Обработка ответа от Google после входа
+      operationId: authGoogleResponseGET
+      responses:
+        '200':
+          description: Успешный вход или регистрация через Google
+        '400':
+          description: Ошибка аутентификации через Google
+        '401':
+          description: Неверные учетные данные Google
+      x-swagger-router-controller: Auth
+
+  /users/search:
+    get:
+      tags:
+        - Users
+      summary: Поиск пользователя
+      operationId: usersSearchGET
+      parameters:
+        - name: query
+          in: query
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Пользователь найден
+        '404':
+          description: Пользователь не найден
+      x-swagger-router-controller: Users
+
+  /users/{user-id}/chats:
+    get:
+      tags:
+        - Users
+      summary: Получение списка чатов пользователя
+      operationId: usersUser_idChatsGET
+      parameters:
+        - name: user-id
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Список чатов успешно получен
+        '404':
+          description: Пользователь не найден
+      x-swagger-router-controller: Users
+
+  /chats:
+    get:
+      tags:
+        - Chats
+      summary: Получения информации о чате по access токену юзера
+      operationId: chatsGET
+      responses:
+        '200':
+          description: Информация о чате
+        '404':
+          description: Чат не найден
+      x-swagger-router-controller: Chats
+    post:
+      tags:
+        - Chats
+      summary: Создание нового группового чата
+      operationId: chatsPOST
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/chats_body'
+        required: true
+      responses:
+        '201':
+          description: Чат успешно создан
+        '400':
+          description: Некорректные данные
+      x-swagger-router-controller: Chats
+
+  /chats/{chat-id}:
+    get:
+      tags:
+        - Chats
+      summary: Получения информации о чате
+      operationId: chatsChat_idGET
+      parameters:
+        - name: chat-id
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Информация о чате
+        '404':
+          description: Чат не найден
+      x-swagger-router-controller: Chats
+
+  /chats/{chat-id}/messages:
+    get:
+      tags:
+        - Chats
+      summary: Получение истории сообщений в чате
+      operationId: chatsChat_idMessagesGET
+      parameters:
+        - name: chat-id
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: История сообщений успешно получена
+        '404':
+          description: Чат не найден
+      x-swagger-router-controller: Chats
+    post:
+      tags:
+        - Chats
+      summary: Отправка сообщения
+      operationId: chatsChat_idMessagesPOST
+      parameters:
+        - name: chat-id
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      requestBody:
+        content:
+          'multipart/form-data:':
+            schema:
+              $ref: '#/components/schemas/chatid_messages_body'
+        required: true
+      responses:
+        '201':
+          description: Сообщение успешно отправлено
+        '400':
+          description: Некорректные данные
+        '404':
+          description: Получатель не найден
+      x-swagger-router-controller: Chats
+
+  /chats/{chat-id}/messages/{message-id}:
+    put:
+      tags:
+        - Chats
+      summary: Обновление текста сообщения
+      operationId: chatsChat_idMessagesMessage_idPUT
+      parameters:
+        - name: chat-id
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: message-id
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/messages_messageid_body'
+        required: true
+      responses:
+        '200':
+          description: Сообщение успешно обновлено
+        '404':
+          description: Сообщение не найдено
+      x-swagger-router-controller: Chats
+    delete:
+      tags:
+        - Chats
+      summary: Удаление сообщения
+      operationId: chatsChat_idMessagesMessage_idDELETE
+      parameters:
+        - name: chat-id
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: message-id
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Сообщение успешно удалено
+        '404':
+          description: Сообщение не найдено
+      x-swagger-router-controller: Chats
+
+  /chats/{chat-id}/users:
+    post:
+      tags:
+        - Chats
+      summary: Добавление пользователя в чат
+      operationId: chatsChat_idUsersPOST
+      parameters:
+        - name: chat-id
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/chatid_users_body'
+        required: true
+      responses:
+        '200':
+          description: Пользователь успешно добавлен
+        '404':
+          description: Чат или пользователь не найдены
+      x-swagger-router-controller: Chats
+
+  /chats/{chat-id}/users/{user-id}:
+    delete:
+      tags:
+        - Chats
+      summary: Удаление пользователя из чата
+      operationId: chatsChat_idUsersUser_idDELETE
+      parameters:
+        - name: chat-id
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: user-id
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Пользователь успешно удален
+        '404':
+          description: Чат или пользователь не найдены
+      x-swagger-router-controller: Chats
+
+components:
+  schemas:
+    auth_login_body:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+    auth_register_body:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        email:
+          type: string
+    users_userid_body:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+    chats_body:
+      type: object
+      properties:
+        ids:
+          type: array
+          items:
+            type: string
+        chat-name:
+          type: string
+    chatid_messages_body:
+      type: object
+      properties:
+        receiver-id:
+          type: string
+        message:
+          type: string
+        image:
+          type: string
+          format: binary
+    messages_messageid_body:
+      type: object
+      properties:
+        new-message:
+          type: string
+    chatid_users_body:
+      type: object
+      properties:
+        id:
+          type: string
