@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftwareSecurity.Domain", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftwareSecurity.Persistence", "SoftwareSecurity.Persistence\SoftwareSecurity.Persistence.csproj", "{FB59BA21-179A-4FB1-9922-AE3B249F1881}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftwareSecurity.Tests", "SoftwareSecurity.Tests\SoftwareSecurity.Tests.csproj", "{10A001E8-C4F0-4C00-824E-AD6D9C45BD9A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{FB59BA21-179A-4FB1-9922-AE3B249F1881}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FB59BA21-179A-4FB1-9922-AE3B249F1881}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FB59BA21-179A-4FB1-9922-AE3B249F1881}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10A001E8-C4F0-4C00-824E-AD6D9C45BD9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10A001E8-C4F0-4C00-824E-AD6D9C45BD9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10A001E8-C4F0-4C00-824E-AD6D9C45BD9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10A001E8-C4F0-4C00-824E-AD6D9C45BD9A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

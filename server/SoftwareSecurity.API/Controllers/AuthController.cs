@@ -50,11 +50,11 @@ public class AuthController(IMediator mediator, ICookieService cookieService, IL
 			JwtConstants.REFRESH_COOKIE_NAME,
 			authResultDto.RefreshToken);
 
-		return Ok(new { authResultDto.AccessToken });
+		return Ok(new AccessTokenDTO(authResultDto.AccessToken));
 	}
 
 	[HttpGet("authorize")]
-	//[Authorize(Policy = "UserOrAdmin")]
+	[Authorize(Policy = "UserOrAdmin")]
 	public async Task<IActionResult> Authorize(CancellationToken cancellationToken)
 	{
 		var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)
@@ -101,7 +101,7 @@ public class AuthController(IMediator mediator, ICookieService cookieService, IL
 			JwtConstants.REFRESH_COOKIE_NAME,
 			authResultDto.RefreshToken);
 
-		return Ok(new { authResultDto.AccessToken });
+		return Ok(new AccessTokenDTO(authResultDto.AccessToken));
 	}
 
 	[HttpPost("registration")]
@@ -110,7 +110,7 @@ public class AuthController(IMediator mediator, ICookieService cookieService, IL
 	{
 		var authResultDto = await _mediator.Send(request, cancellationToken);
 
-		return Ok(new { authResultDto.AccessToken });
+		return Ok(new AccessTokenDTO(authResultDto.AccessToken));
 	}
 
 	[HttpGet("google-login")]
