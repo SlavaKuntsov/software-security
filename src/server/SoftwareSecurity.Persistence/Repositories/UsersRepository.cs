@@ -7,7 +7,8 @@ using SoftwareSecurity.Domain.Models;
 
 namespace SoftwareSecurity.Persistence.Repositories;
 
-public class UsersRepository(SoftwareSecurityDBContext context) : IUsersRepository
+public class UsersRepository(SoftwareSecurityDBContext context) 
+	: IUsersRepository
 {
 	private readonly SoftwareSecurityDBContext _context = context;
 

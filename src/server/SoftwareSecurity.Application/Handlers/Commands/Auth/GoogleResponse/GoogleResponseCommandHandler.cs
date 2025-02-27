@@ -13,7 +13,8 @@ namespace SoftwareSecurity.Application.Handlers.Commands.Auth.GoogleResponse;
 public class GoogleResponseCommandHandler(
 	IUsersRepository usersRepository,
 	IApplicationDbContext context,
-	IJwt jwt) : IRequestHandler<GoogleResponseCommand, AuthDTO>
+	IJwt jwt) 
+	: IRequestHandler<GoogleResponseCommand, AuthDTO>
 {
 	private readonly IUsersRepository _usersRepository = usersRepository;
 	private readonly IApplicationDbContext _context = context;

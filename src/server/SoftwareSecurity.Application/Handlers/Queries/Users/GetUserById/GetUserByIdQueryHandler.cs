@@ -8,8 +8,8 @@ using SoftwareSecurity.Domain.Interfaces.Repositories;
 
 namespace SoftwareSecurity.Application.Handlers.Queries.Users.GetUserById;
 
-public class GetUserByIdQueryHandler(
-	IUsersRepository usersRepository) : IRequestHandler<GetUserByIdQuery, UserDTO?>
+public class GetUserByIdQueryHandler(IUsersRepository usersRepository) 
+	: IRequestHandler<GetUserByIdQuery, UserDTO?>
 {
 	private readonly IUsersRepository _usersRepository = usersRepository;
 

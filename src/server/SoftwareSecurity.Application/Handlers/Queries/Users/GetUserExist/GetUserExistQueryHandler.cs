@@ -4,7 +4,8 @@ using SoftwareSecurity.Domain.Interfaces.Repositories;
 
 namespace SoftwareSecurity.Application.Handlers.Queries.Users.GetUserExist;
 
-public class GetUserExistQueryHandler(IUsersRepository usersRepository) : IRequestHandler<GetUserExistQuery, bool>
+public class GetUserExistQueryHandler(IUsersRepository usersRepository) 
+	: IRequestHandler<GetUserExistQuery, bool>
 {
 	private readonly IUsersRepository _usersRepository = usersRepository;
 

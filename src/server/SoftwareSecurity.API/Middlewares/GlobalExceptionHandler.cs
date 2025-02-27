@@ -11,7 +11,8 @@ namespace SoftwareSecurity.API.Middlewares;
 
 public class GlobalExceptionHandler(
 	IProblemDetailsService problemDetailsService,
-	ILogger<GlobalExceptionHandler> logger) : IExceptionHandler
+	ILogger<GlobalExceptionHandler> logger) 
+	: IExceptionHandler
 {
 	private readonly IProblemDetailsService _problemDetailsService = problemDetailsService;
 	private readonly ILogger<GlobalExceptionHandler> _logger = logger;

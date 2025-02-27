@@ -5,8 +5,8 @@ using SoftwareSecurity.Domain.Models;
 
 namespace SoftwareSecurity.Application.Handlers.Queries.Users.GetUserByEmail;
 
-public class GetUserByEmailQueryHandler(
-	IUsersRepository usersRepository) : IRequestHandler<GetUserByEmailQuery, UserModel?>
+public class GetUserByEmailQueryHandler(IUsersRepository usersRepository) 
+	: IRequestHandler<GetUserByEmailQuery, UserModel?>
 {
 	private readonly IUsersRepository _usersRepository = usersRepository;
 

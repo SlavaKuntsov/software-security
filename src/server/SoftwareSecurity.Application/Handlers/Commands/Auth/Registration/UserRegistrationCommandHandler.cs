@@ -14,7 +14,8 @@ public class UserRegistrationCommandHandler(
 	IUsersRepository usersRepository,
 	IPasswordHash passwordHash,
 	IApplicationDbContext context,
-	IJwt jwt) : IRequestHandler<UserRegistrationCommand, AuthDTO>
+	IJwt jwt) 
+	: IRequestHandler<UserRegistrationCommand, AuthDTO>
 {
 	private readonly IUsersRepository _usersRepository = usersRepository;
 	private readonly IPasswordHash _passwordHash = passwordHash;

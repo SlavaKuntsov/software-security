@@ -8,7 +8,8 @@ namespace SoftwareSecurity.Application.Handlers.Commands.Auth.Unauthorize;
 
 public class UnauthorizeCommandHandler(
 	ITokensRepository tokensRepository,
-	IApplicationDbContext context) : IRequestHandler<UnauthorizeCommand>
+	IApplicationDbContext context) 
+	: IRequestHandler<UnauthorizeCommand>
 {
 	private readonly ITokensRepository _tokensRepository = tokensRepository;
 	private readonly IApplicationDbContext _context = context;

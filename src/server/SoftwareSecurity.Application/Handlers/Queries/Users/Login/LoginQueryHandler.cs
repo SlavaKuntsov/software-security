@@ -9,7 +9,8 @@ namespace SoftwareSecurity.Application.Handlers.Queries.Users.Login;
 
 public class LoginQueryHandler(
 	IUsersRepository usersRepository,
-	IPasswordHash passwordHash) : IRequestHandler<LoginQuery, UserRoleDTO>
+	IPasswordHash passwordHash) 
+	: IRequestHandler<LoginQuery, UserRoleDTO>
 {
 	private readonly IUsersRepository _usersRepository = usersRepository;
 	private readonly IPasswordHash _passwordHash = passwordHash;

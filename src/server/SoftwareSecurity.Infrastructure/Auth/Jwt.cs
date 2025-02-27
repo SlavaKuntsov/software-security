@@ -13,7 +13,10 @@ using SoftwareSecurity.Domain.Interfaces.Repositories;
 
 namespace SoftwareSecurity.Infrastructure.Auth;
 
-public class Jwt(IOptions<JwtModel> jwtOptions, ITokensRepository tokensRepository) : IJwt
+public class Jwt(
+	IOptions<JwtModel> jwtOptions, 
+	ITokensRepository tokensRepository) 
+	: IJwt
 {
 	private readonly JwtModel _jwtOptions = jwtOptions.Value;
 	private readonly ITokensRepository _tokensRepository = tokensRepository;

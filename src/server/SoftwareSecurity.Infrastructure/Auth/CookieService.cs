@@ -5,7 +5,8 @@ using SoftwareSecurity.Domain.Constants;
 
 namespace SoftwareSecurity.Infrastructure.Auth;
 
-public class CookieService(IHttpContextAccessor httpContextAccessor) : ICookieService
+public class CookieService(IHttpContextAccessor httpContextAccessor) 
+	: ICookieService
 {
 	private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 

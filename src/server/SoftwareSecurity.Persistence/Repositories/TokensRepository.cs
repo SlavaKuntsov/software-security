@@ -6,7 +6,8 @@ using SoftwareSecurity.Domain.Models;
 
 namespace SoftwareSecurity.Persistence.Repositories;
 
-public class TokensRepository(SoftwareSecurityDBContext context) : ITokensRepository
+public class TokensRepository(SoftwareSecurityDBContext context) 
+	: ITokensRepository
 {
 	private readonly SoftwareSecurityDBContext _context = context;
 

@@ -27,11 +27,13 @@ namespace SoftwareSecurity.API.Controllers;
 
 [ApiController]
 [Route("/auth")]
-public class AuthController(IMediator mediator, ICookieService cookieService, ILogger<AuthController> logger) : ControllerBase
+public class AuthController(
+	IMediator mediator, 
+	ICookieService cookieService) 
+	: ControllerBase
 {
 	private readonly IMediator _mediator = mediator;
 	private readonly ICookieService _cookieService = cookieService;
-	private readonly ILogger<AuthController> _logger = logger;
 
 	[HttpGet("refresh-token")]
 	public async Task<IActionResult> RefreshToken(CancellationToken cancellationToken)
@@ -127,7 +129,6 @@ public class AuthController(IMediator mediator, ICookieService cookieService, IL
 		var result = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
 		if (!result.Succeeded)
 		{
-			_logger.LogWarning("Google authentication failed.");
 			return BadRequest("Google authentication failed.");
 		}
 

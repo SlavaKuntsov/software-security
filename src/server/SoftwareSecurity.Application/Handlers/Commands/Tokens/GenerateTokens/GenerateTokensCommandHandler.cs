@@ -12,7 +12,8 @@ namespace SoftwareSecurity.Application.Handlers.Commands.Tokens.GenerateTokens;
 public class GenerateTokensCommandHandler(
 	ITokensRepository tokensRepository,
 	IApplicationDbContext context,
-	IJwt jwt) : IRequestHandler<GenerateTokensCommand, AuthDTO>
+	IJwt jwt) 
+	: IRequestHandler<GenerateTokensCommand, AuthDTO>
 {
 	private readonly ITokensRepository _tokensRepository = tokensRepository;
 	private readonly IApplicationDbContext _context = context;

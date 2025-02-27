@@ -9,7 +9,8 @@ namespace SoftwareSecurity.Application.Handlers.Queries.Tokens.GetByRefreshToken
 
 public class GetByRefreshTokenCommandHandler(
 	IUsersRepository usersRepository,
-	IJwt jwt) : IRequestHandler<GetByRefreshTokenCommand, UserRoleDTO>
+	IJwt jwt) 
+	: IRequestHandler<GetByRefreshTokenCommand, UserRoleDTO>
 {
 	private readonly IUsersRepository _usersRepository = usersRepository;
 	private readonly IJwt _jwt = jwt;
