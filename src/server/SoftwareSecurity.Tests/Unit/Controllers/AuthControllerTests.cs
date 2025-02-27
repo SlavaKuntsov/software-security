@@ -20,11 +20,9 @@ using SoftwareSecurity.Application.Handlers.Queries.Users.Login;
 using SoftwareSecurity.Application.Interfaces.Auth;
 using SoftwareSecurity.Domain.Enums;
 
-using UserService.API.Contracts;
-
 using Xunit;
 
-namespace SoftwareSecurity.Tests.Unit;
+namespace SoftwareSecurity.Tests.Unit.Controllers;
 
 public class AuthControllerTests
 {
@@ -41,8 +39,7 @@ public class AuthControllerTests
 		_loggerMock = new Mock<ILogger<AuthController>>();
 		_controller = new AuthController(
 			_mediatorMock.Object,
-			_cookieServiceMock.Object,
-			_loggerMock.Object);
+			_cookieServiceMock.Object);
 		_faker = new Faker();
 
 		var httpContext = new DefaultHttpContext();

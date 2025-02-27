@@ -39,8 +39,6 @@ public class GenerateTokensCommandHandler(
 			existRefreshToken.ExpiresAt = newRefreshTokenModel.ExpiresAt;
 
 			_tokensRepository.Update(existRefreshToken);
-
-			await _context.SaveChangesAsync(cancellationToken);
 		}
 		else
 		{
@@ -48,6 +46,8 @@ public class GenerateTokensCommandHandler(
 				newRefreshTokenModel,
 				cancellationToken);
 		}
+
+		await _context.SaveChangesAsync(cancellationToken);
 
 		return new AuthDTO(accessToken, newRefreshToken);
 	}

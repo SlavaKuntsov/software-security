@@ -1,7 +1,9 @@
 ﻿using Bogus;
 
 using SoftwareSecurity.Application.DTOs;
+using SoftwareSecurity.Application.Handlers.Commands.Auth.GoogleResponse;
 using SoftwareSecurity.Application.Handlers.Commands.Auth.Registration;
+using SoftwareSecurity.Application.Handlers.Commands.Tokens.GenerateTokens;
 using SoftwareSecurity.Domain.Enums;
 using SoftwareSecurity.Domain.Models;
 
@@ -56,6 +58,15 @@ public static class TestDataGenerator
 		);
 	}
 
+	public static RefreshTokenModel GenerateRefreshTokenModel()
+	{
+		return new RefreshTokenModel(
+			userId: Ulid.NewUlid(),
+			token: _faker.Random.AlphaNumeric(32),
+			refreshTokenExpirationDays: 1
+		);
+	}
+
 	public static CreateLoginRequest GenerateCreateLoginRequest()
 	{
 		return new CreateLoginRequest(
@@ -78,5 +89,22 @@ public static class TestDataGenerator
 	public static AccessTokenDTO GenerateAccessTokenDTO()
 	{
 		return new AccessTokenDTO("mock_access_token");
+	}
+
+	public static GoogleResponseCommand GenerateGoogleResponseCommand()
+	{
+		return new GoogleResponseCommand(
+			Email: _faker.Internet.Email(),
+			FirstName: _faker.Name.FirstName(),
+			LastName: _faker.Name.LastName()
+		);
+	}
+
+	public static GenerateTokensCommand GenerateTokensCommand()
+	{
+		return new GenerateTokensCommand(
+			Id: Ulid.NewUlid(),
+			Role: Role.User
+		);
 	}
 }
