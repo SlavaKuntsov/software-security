@@ -28,8 +28,8 @@ namespace SoftwareSecurity.API.Controllers;
 [ApiController]
 [Route("/auth")]
 public class AuthController(
-	IMediator mediator, 
-	ICookieService cookieService) 
+	IMediator mediator,
+	ICookieService cookieService)
 	: ControllerBase
 {
 	private readonly IMediator _mediator = mediator;
@@ -58,7 +58,9 @@ public class AuthController(
 			JwtConstants.REFRESH_COOKIE_NAME,
 			authResultDto.RefreshToken);
 
-		return Ok(new AccessTokenDTO(authResultDto.AccessToken));
+		return Ok(new AccessTokenDTO(
+			authResultDto.AccessToken,
+			authResultDto.RefreshToken));
 	}
 
 	[HttpGet("authorize")]
@@ -109,7 +111,9 @@ public class AuthController(
 			JwtConstants.REFRESH_COOKIE_NAME,
 			authResultDto.RefreshToken);
 
-		return Ok(new AccessTokenDTO(authResultDto.AccessToken));
+		return Ok(new AccessTokenDTO(
+			authResultDto.AccessToken,
+			authResultDto.RefreshToken));
 	}
 
 	[HttpPost("registration")]
@@ -118,7 +122,9 @@ public class AuthController(
 	{
 		var authResultDto = await _mediator.Send(request, cancellationToken);
 
-		return Ok(new AccessTokenDTO(authResultDto.AccessToken));
+		return Ok(new AccessTokenDTO(
+			authResultDto.AccessToken,
+			authResultDto.RefreshToken));
 	}
 
 	[HttpGet("google-login")]

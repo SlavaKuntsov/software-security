@@ -38,7 +38,8 @@ app.UseCookiePolicy(new CookiePolicyOptions
 	HttpOnly = HttpOnlyPolicy.Always,
 	Secure = CookieSecurePolicy.Always,
 });
-app.UseHttpsRedirection();
+// comment this only for  time when flutter client is in development
+//app.UseHttpsRedirection();
 app.UseForwardedHeaders(new ForwardedHeadersOptions
 {
 	ForwardedHeaders = ForwardedHeaders.All
