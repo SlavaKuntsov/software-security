@@ -1,4 +1,4 @@
-import 'package:client/router/router.dart';
+import 'package:client/utils/router/router.dart';
 import 'package:flutter/material.dart';
 
 import 'chat_app.dart';
