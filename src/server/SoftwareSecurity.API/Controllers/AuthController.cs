@@ -35,6 +35,12 @@ public class AuthController(
 	private readonly IMediator _mediator = mediator;
 	private readonly ICookieService _cookieService = cookieService;
 
+	[HttpGet("/qwe")]
+	public IActionResult Get()
+	{
+		return Ok("qwe");
+	}
+
 	[HttpGet("refresh-token")]
 	public async Task<IActionResult> RefreshToken(CancellationToken cancellationToken)
 	{

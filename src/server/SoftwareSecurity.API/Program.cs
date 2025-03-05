@@ -8,7 +8,7 @@ using SoftwareSecurity.Application.Extensions;
 using SoftwareSecurity.Infrastructure.Extensions;
 using SoftwareSecurity.Persistence.Extensions;
 
-Env.Load("./../../.env");
+Env.Load("./../../../.env");
 
 var builder = WebApplication.CreateBuilder(args);
 var services  = builder.Services;

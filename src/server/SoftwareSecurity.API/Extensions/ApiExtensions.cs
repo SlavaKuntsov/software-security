@@ -114,6 +114,7 @@ public static class ApiExtensions
 				policy.WithOrigins("http://localhost:5000");
 				policy.WithOrigins("https://localhost:5001");
 				policy.WithOrigins("https://accounts.google.com");
+				policy.WithOrigins("http://10.0.2.2");
 				policy.AllowAnyHeader();
 				policy.AllowAnyMethod();
 				policy.AllowCredentials();
@@ -145,6 +146,8 @@ public static class ApiExtensions
 	{
 		builder.WebHost.ConfigureKestrel(options =>
 		{
+			options.ListenAnyIP(5000);
+
 			options.ListenAnyIP(5001, listenOptions =>
 			{
 				listenOptions.UseHttps();
