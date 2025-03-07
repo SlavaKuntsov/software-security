@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
@@ -18,7 +19,7 @@ namespace SoftwareSecurity.API.Extensions;
 
 public static class ApiExtensions
 {
-	public static IServiceCollection AddAPI(this IServiceCollection services, IConfiguration configuration)
+	public static IServiceCollection AddAPI(this IServiceCollection services)
 	{
 		services.AddHttpContextAccessor();
 
@@ -56,6 +57,14 @@ public static class ApiExtensions
 		});
 		services.AddSwaggerExamplesFromAssemblyOf<CreateUserRequestExample>();
 
+		services.AddMediatR(cfg =>
+			cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+
+		return services;
+	}
+
+	public static IServiceCollection AddAuth(this IServiceCollection services, IConfiguration configuration)
+	{
 		var jwtOptions = configuration.GetSection(nameof(JwtModel)).Get<JwtModel>();
 
 		var clientId = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID");
@@ -95,12 +104,12 @@ public static class ApiExtensions
 					}
 				};
 			})
-			.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme) 
-			.AddGoogle(GoogleDefaults.AuthenticationScheme, options => 
+			.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
+			.AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
 			{
 				options.ClientId = clientId;
 				options.ClientSecret = clientSecret;
-				options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme; 
+				options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 				options.CallbackPath = "/google-response";
 			});
 
@@ -136,23 +145,46 @@ public static class ApiExtensions
 
 		services.AddScoped<IAuthorizationHandler, ActiveAdminHandler>();
 
-		services.AddMediatR(cfg =>
-			cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
-
 		return services;
 	}
 
 	public static WebApplicationBuilder UseHttps(this WebApplicationBuilder builder)
 	{
-		builder.WebHost.ConfigureKestrel(options =>
-		{
-			options.ListenAnyIP(5000);
+		var environment = builder.Environment;
+		var portString = Environment.GetEnvironmentVariable("PORT");
 
-			options.ListenAnyIP(5001, listenOptions =>
+		if (string.IsNullOrEmpty(portString))
+			portString = builder.Configuration.GetValue<string>("ApplicationSettings:Port");
+
+		if (!int.TryParse(portString, out int port))
+			throw new InvalidOperationException($"Invalid port value: {portString}");
+
+		if (environment.IsProduction())
+		{
+			var certPath = "/app/localhost.pfx";
+			var certPassword = "1";
+			builder.WebHost.ConfigureKestrel(options =>
 			{
-				listenOptions.UseHttps();
+				options.ListenAnyIP(5000);
+
+				options.ListenAnyIP(port, listenOptions =>
+				{
+					listenOptions.UseHttps(certPath, certPassword);
+				});
 			});
-		});
+		}
+		else
+		{
+			builder.WebHost.ConfigureKestrel(options =>
+			{
+				options.ListenAnyIP(5000);
+
+				options.ListenAnyIP(port, listenOptions =>
+				{
+					listenOptions.UseHttps();
+				});
+			});
+		}
 
 		return builder;
 	}
