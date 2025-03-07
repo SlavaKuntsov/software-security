@@ -27,6 +27,12 @@ public partial class UserConfiguration : IEntityTypeConfiguration<UserModel>
 				value => Enum.Parse<Role>(value)
 			);
 
+		builder.Property(u => u.AuthType)
+			.HasConversion(
+				type => type.ToString(),
+				value => Enum.Parse<AuthType>(value)
+			);
+
 		builder.Property(d => d.FirstName)
 			.IsRequired()
 			.HasMaxLength(100);

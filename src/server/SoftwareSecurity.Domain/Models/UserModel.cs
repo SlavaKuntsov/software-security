@@ -13,6 +13,7 @@ public class UserModel
 	public string FirstName { get; set; } = string.Empty;
 	public string LastName { get; set; } = string.Empty;
 	public string DateOfBirth { get; set; } = string.Empty;
+	public AuthType AuthType { get; set; }
 
 	public virtual RefreshTokenModel RefreshToken { get; set; } = null!;
 
@@ -22,6 +23,7 @@ public class UserModel
 		string email,
 		string password,
 		Role role,
+		AuthType authType,
 		string? firstName = null,
 		string? lastName = null,
 		string? dateOfBirth = null)
@@ -30,6 +32,7 @@ public class UserModel
 		Email = email;
 		Password = password;
 		Role = role;
+		AuthType = authType;
 		FirstName = firstName ?? string.Empty;
 		LastName = lastName ?? string.Empty;
 		DateOfBirth = dateOfBirth ?? string.Empty;

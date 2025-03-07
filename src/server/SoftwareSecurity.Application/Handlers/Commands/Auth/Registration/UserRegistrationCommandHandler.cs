@@ -14,7 +14,7 @@ public class UserRegistrationCommandHandler(
 	IUsersRepository usersRepository,
 	IPasswordHash passwordHash,
 	IApplicationDbContext context,
-	IJwt jwt) 
+	IJwt jwt)
 	: IRequestHandler<UserRegistrationCommand, AuthDTO>
 {
 	private readonly IUsersRepository _usersRepository = usersRepository;
@@ -33,6 +33,7 @@ public class UserRegistrationCommandHandler(
 			request.Email,
 			request.Password != string.Empty ? _passwordHash.Generate(request.Password) : "",
 			Role.User,
+			request.AuthType,
 			request.FirstName,
 			request.LastName,
 			request.DateOfBirth);

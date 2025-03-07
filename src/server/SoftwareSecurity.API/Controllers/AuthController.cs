@@ -17,6 +17,7 @@ using SoftwareSecurity.Application.Handlers.Queries.Users.GetUserById;
 using SoftwareSecurity.Application.Handlers.Queries.Users.Login;
 using SoftwareSecurity.Application.Interfaces.Auth;
 using SoftwareSecurity.Domain.Constants;
+using SoftwareSecurity.Domain.Enums;
 
 using Swashbuckle.AspNetCore.Filters;
 
@@ -34,12 +35,6 @@ public class AuthController(
 {
 	private readonly IMediator _mediator = mediator;
 	private readonly ICookieService _cookieService = cookieService;
-
-	[HttpGet("/qwe")]
-	public IActionResult Get()
-	{
-		return Ok("qwe");
-	}
 
 	[HttpGet("refresh-token")]
 	public async Task<IActionResult> RefreshToken(CancellationToken cancellationToken)
@@ -171,9 +166,12 @@ public class AuthController(
 				string.Empty,
 				firstName,
 				lastName,
-				string.Empty), cancellationToken);
+				string.Empty,
+				AuthType.Google), cancellationToken);
 
 			text = "registration";
+
+			user = await _mediator.Send(new GetUserByEmailQuery(email), cancellationToken);
 		}
 
 		HttpContext.Response.Cookies.Append(

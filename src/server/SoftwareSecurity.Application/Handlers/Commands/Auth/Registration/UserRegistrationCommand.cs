@@ -1,6 +1,7 @@
 ﻿using MediatR;
 
 using SoftwareSecurity.Application.DTOs;
+using SoftwareSecurity.Domain.Enums;
 
 namespace SoftwareSecurity.Application.Handlers.Commands.Auth.Registration;
 
@@ -9,4 +10,5 @@ public record UserRegistrationCommand(
 	string? Password,
 	string FirstName,
 	string LastName,
-	string? DateOfBirth) : IRequest<AuthDTO>;
+	string? DateOfBirth,
+	AuthType AuthType) : IRequest<AuthDTO>;

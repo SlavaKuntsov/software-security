@@ -1,7 +1,6 @@
 ﻿using Bogus;
 
 using SoftwareSecurity.Application.DTOs;
-using SoftwareSecurity.Application.Handlers.Commands.Auth.GoogleResponse;
 using SoftwareSecurity.Application.Handlers.Commands.Auth.Registration;
 using SoftwareSecurity.Application.Handlers.Commands.Tokens.GenerateTokens;
 using SoftwareSecurity.Domain.Enums;
@@ -52,6 +51,7 @@ public static class TestDataGenerator
 			email: _faker.Internet.Email(),
 			password: _faker.Internet.Password(),
 			role: _faker.PickRandom<Role>(),
+			authType: _faker.PickRandom<AuthType>(),
 			firstName: _faker.Name.FirstName(),
 			lastName: _faker.Name.LastName(),
 			dateOfBirth: _faker.Date.Past(20).ToString("yyyy-MM-dd")
@@ -82,22 +82,14 @@ public static class TestDataGenerator
 			Password: _faker.Internet.Password(),
 			FirstName: _faker.Name.FirstName(),
 			LastName: _faker.Name.LastName(),
-			DateOfBirth: _faker.Date.Past(20).ToString("yyyy-MM-dd")
+			DateOfBirth: _faker.Date.Past(20).ToString("yyyy-MM-dd"),
+			AuthType: _faker.PickRandom<AuthType>()
 		);
 	}
 
 	public static AccessTokenDTO GenerateAccessTokenDTO()
 	{
-		return new AccessTokenDTO("mock_access_token");
-	}
-
-	public static GoogleResponseCommand GenerateGoogleResponseCommand()
-	{
-		return new GoogleResponseCommand(
-			Email: _faker.Internet.Email(),
-			FirstName: _faker.Name.FirstName(),
-			LastName: _faker.Name.LastName()
-		);
+		return new AccessTokenDTO(accessToken, refreshToken);
 	}
 
 	public static GenerateTokensCommand GenerateTokensCommand()
