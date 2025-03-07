@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
@@ -9,6 +8,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 using SoftwareSecurity.API.Middlewares;
+using SoftwareSecurity.Domain.Enums;
+using SoftwareSecurity.Domain.Extensions;
 using SoftwareSecurity.Infrastructure.Auth;
 
 using Swashbuckle.AspNetCore.Filters;
@@ -131,16 +132,14 @@ public static class ApiExtensions
 		});
 
 		services.AddAuthorizationBuilder()
-			.AddPolicy("AdminOnly", policy =>
+			.AddPolicy("Admin", policy =>
 			{
-				policy.RequireRole("Admin");
+				policy.RequireRole(Role.Admin.GetDescription());
 				policy.AddRequirements(new ActiveAdminRequirement());
 			})
-			.AddPolicy("UserOnly", policy => policy.RequireRole("User"))
-			.AddPolicy("UserOrAdmin", policy =>
+			.AddPolicy("User", policy =>
 			{
-				policy.RequireRole("User", "Admin");
-				policy.AddRequirements(new ActiveAdminRequirement());
+				policy.RequireRole(Role.User.GetDescription());
 			});
 
 		services.AddScoped<IAuthorizationHandler, ActiveAdminHandler>();
@@ -151,13 +150,6 @@ public static class ApiExtensions
 	public static WebApplicationBuilder UseHttps(this WebApplicationBuilder builder)
 	{
 		var environment = builder.Environment;
-		var portString = Environment.GetEnvironmentVariable("PORT");
-
-		if (string.IsNullOrEmpty(portString))
-			portString = builder.Configuration.GetValue<string>("ApplicationSettings:Port");
-
-		if (!int.TryParse(portString, out int port))
-			throw new InvalidOperationException($"Invalid port value: {portString}");
 
 		if (environment.IsProduction())
 		{
@@ -167,7 +159,7 @@ public static class ApiExtensions
 			{
 				options.ListenAnyIP(5000);
 
-				options.ListenAnyIP(port, listenOptions =>
+				options.ListenAnyIP(5001, listenOptions =>
 				{
 					listenOptions.UseHttps(certPath, certPassword);
 				});
@@ -179,7 +171,7 @@ public static class ApiExtensions
 			{
 				options.ListenAnyIP(5000);
 
-				options.ListenAnyIP(port, listenOptions =>
+				options.ListenAnyIP(5001, listenOptions =>
 				{
 					listenOptions.UseHttps();
 				});

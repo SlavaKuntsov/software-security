@@ -21,7 +21,7 @@ builder.Services.AddSwaggerGen();
 builder.UseHttps();
 
 services.AddAPI()
-	//.AddAuth(configuration)
+	.AddAuth(configuration)
 	.AddApplication()
 	.AddInfrastructure()
 	.AddPersistence(configuration);
