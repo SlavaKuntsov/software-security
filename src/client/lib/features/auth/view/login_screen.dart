@@ -1,7 +1,9 @@
 import 'package:client/constants/auth_constants.dart';
 import 'package:client/repositories/auth_repository.dart';
+import 'package:client/utils/secure_store.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:get_it/get_it.dart';
 
 import '../../../utils/router/router.dart';
 
@@ -62,7 +64,9 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   login(context) async {
-    final res = await AuthRepository().login(
+    final authRepository = GetIt.instance<AuthRepository>();
+
+    final res = await authRepository.login(
       emailController.text,
       passwordController.text,
     );
@@ -81,15 +85,13 @@ class _LoginPageState extends State<LoginPage> {
     ).showSnackBar(SnackBar(content: Text('Login successful!')));
     Navigator.of(context).pushReplacementNamed(Routes.home);
 
-    final storage = FlutterSecureStorage();
-
-    await storage.write(
-      key: AuthConstants.access_token,
-      value: res.data?.accessToken,
+    await SecureStore().write(
+      AuthConstants.access_token,
+      res.data!.accessToken,
     );
-    await storage.write(
-      key: AuthConstants.refresh_token,
-      value: res.data?.refreshToken,
+    await SecureStore().write(
+      AuthConstants.refresh_token,
+      res.data!.refreshToken,
     );
   }
 }

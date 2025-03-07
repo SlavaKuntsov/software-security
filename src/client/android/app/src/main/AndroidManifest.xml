@@ -6,6 +6,7 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true">
+        <meta-data android:name="flutter.renderer" android:value="skia"/>
 
         <activity
             android:name=".MainActivity"

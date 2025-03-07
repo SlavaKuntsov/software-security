@@ -1,3 +1,5 @@
+import 'package:client/constants/auth_constants.dart';
+import 'package:client/utils/secure_store.dart';
 import 'package:flutter/material.dart';
 
 import '../../../utils/router/router.dart';
@@ -12,6 +14,7 @@ class MyHomePage extends StatelessWidget {
       body: Center(
         child: Container(
           width: 200,
+          height: 200,
           margin: EdgeInsets.all(20),
           padding: EdgeInsets.all(20),
           decoration: BoxDecoration(
@@ -24,14 +27,21 @@ class MyHomePage extends StatelessWidget {
               const Text('Main page'),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.of(context).pushReplacementNamed(Routes.auth);
+                 logout(context)
                 },
-                child: Text('login back'),
+                child: Text('logout'),
               ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  logout(context) async{
+    await SecureStore().delete(AuthConstants.access_token);
+    await SecureStore().delete(AuthConstants.refresh_token);
+
+    Navigator.of(context).pushReplacementNamed(Routes.auth);
   }
 }
