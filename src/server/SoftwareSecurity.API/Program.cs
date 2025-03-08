@@ -22,6 +22,7 @@ builder.UseHttps();
 
 services.AddAPI()
 	.AddAuth(configuration)
+	.AddSwagger()
 	.AddApplication()
 	.AddInfrastructure()
 	.AddPersistence(configuration);
@@ -31,7 +32,11 @@ var app = builder.Build();
 app.UseExceptionHandler();
 
 app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(c =>
+{
+	c.SwaggerEndpoint("/swagger/v1/swagger.json", "Mobile API v1");
+	c.SwaggerEndpoint("/swagger/v2/swagger.json", "Web API v2");
+});
 
 app.UseCookiePolicy(new CookiePolicyOptions
 {

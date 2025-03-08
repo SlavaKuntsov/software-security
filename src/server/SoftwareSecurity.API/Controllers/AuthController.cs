@@ -1,5 +1,7 @@
 ﻿using System.Security.Claims;
 
+using Asp.Versioning;
+
 using MediatR;
 
 using Microsoft.AspNetCore.Authentication;
@@ -27,7 +29,8 @@ using UserService.API.Contracts.Examples;
 namespace SoftwareSecurity.API.Controllers;
 
 [ApiController]
-[Route("/auth")]
+[Route("api/v{version:apiVersion}/auth")]
+[ApiVersion("1.0")]
 public class AuthController(
 	IMediator mediator,
 	ICookieService cookieService)
@@ -137,9 +140,7 @@ public class AuthController(
 	{
 		var result = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
 		if (!result.Succeeded)
-		{
 			return BadRequest("Google authentication failed.");
-		}
 
 		var email = result.Principal.FindFirst(ClaimTypes.Email)?.Value;
 		var firstName = result.Principal.FindFirst(ClaimTypes.GivenName)?.Value;

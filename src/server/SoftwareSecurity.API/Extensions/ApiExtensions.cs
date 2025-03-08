@@ -1,5 +1,7 @@
 ﻿using System.Text;
 
+using Asp.Versioning;
+
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -31,6 +33,10 @@ public static class ApiExtensions
 		services.AddEndpointsApiExplorer();
 		services.AddSwaggerGen(options =>
 		{
+			options.SwaggerDoc("v1", new OpenApiInfo { Title = "Mobile API v1", Version = "v1" });
+			options.SwaggerDoc("v2", new OpenApiInfo { Title = "Web API v2", Version = "v2" });
+
+
 			options.ExampleFilters();
 			options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
 			{
@@ -60,6 +66,25 @@ public static class ApiExtensions
 
 		services.AddMediatR(cfg =>
 			cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+
+		return services;
+	}
+
+	public static IServiceCollection AddSwagger(this IServiceCollection services)
+	{
+		var apiVersioningBuilder = services.AddApiVersioning(o =>
+		{
+			o.AssumeDefaultVersionWhenUnspecified = true;
+			o.DefaultApiVersion = new ApiVersion(1, 0);
+			o.ReportApiVersions = true;
+			o.ApiVersionReader = new UrlSegmentApiVersionReader();
+		});
+
+		apiVersioningBuilder.AddApiExplorer(options =>
+		{
+			options.GroupNameFormat = "'v'VVV";
+			options.SubstituteApiVersionInUrl = true; 
+		});
 
 		return services;
 	}
@@ -143,6 +168,13 @@ public static class ApiExtensions
 			});
 
 		services.AddScoped<IAuthorizationHandler, ActiveAdminHandler>();
+
+		services.AddApiVersioning(options =>
+		{
+			options.DefaultApiVersion = new ApiVersion(1, 0);
+			options.AssumeDefaultVersionWhenUnspecified = true;
+			options.ReportApiVersions = true;
+		});
 
 		return services;
 	}
