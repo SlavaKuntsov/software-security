@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 using Moq;
 
-using SoftwareSecurity.API.Controllers.Web;
+using SoftwareSecurity.API.Controllers;
 using SoftwareSecurity.Application.DTOs;
 using SoftwareSecurity.Application.Handlers.Commands.Auth.Registration;
 using SoftwareSecurity.Application.Handlers.Commands.Tokens.GenerateTokens;

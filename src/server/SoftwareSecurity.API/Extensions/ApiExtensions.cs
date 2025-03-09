@@ -165,7 +165,12 @@ public static class ApiExtensions
 			.AddPolicy("User", policy =>
 			{
 				policy.RequireRole(Role.User.GetDescription());
-			});
+			})
+			.AddPolicy("All", policy =>
+			 {
+				 policy.RequireRole(Role.Admin.GetDescription(), Role.User.GetDescription());
+				 policy.AddRequirements(new ActiveAdminRequirement());
+			 });
 
 		services.AddScoped<IAuthorizationHandler, ActiveAdminHandler>();
 
