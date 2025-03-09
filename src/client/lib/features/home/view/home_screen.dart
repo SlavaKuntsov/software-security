@@ -14,7 +14,6 @@ class MyHomePage extends StatelessWidget {
       body: Center(
         child: Container(
           width: 200,
-          height: 200,
           margin: EdgeInsets.all(20),
           padding: EdgeInsets.all(20),
           decoration: BoxDecoration(
@@ -22,14 +21,25 @@ class MyHomePage extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
           ),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               const Text('Main page'),
               ElevatedButton(
                 onPressed: () {
-                 logout(context)
+                  logout(context);
                 },
                 child: Text('logout'),
+              ),
+              ElevatedButton(
+                onPressed:
+                    () => SecureStore().delete(AuthConstants.accessToken),
+                child: Text('delete access'),
+              ),
+              ElevatedButton(
+                onPressed:
+                    () => SecureStore().delete(AuthConstants.refreshToken),
+                child: Text('delete refresh'),
               ),
             ],
           ),
@@ -38,9 +48,9 @@ class MyHomePage extends StatelessWidget {
     );
   }
 
-  logout(context) async{
-    await SecureStore().delete(AuthConstants.access_token);
-    await SecureStore().delete(AuthConstants.refresh_token);
+  logout(context) async {
+    await SecureStore().delete(AuthConstants.accessToken);
+    await SecureStore().delete(AuthConstants.refreshToken);
 
     Navigator.of(context).pushReplacementNamed(Routes.auth);
   }

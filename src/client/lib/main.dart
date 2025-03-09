@@ -1,4 +1,3 @@
-import 'package:client/utils/auth_interceptor.dart';
 import 'package:client/utils/router/router.dart';
 import 'package:client/utils/service_locator.dart';
 import 'package:client/utils/setup_dio.dart';
@@ -12,8 +11,7 @@ void main() async {
   setupServiceLocator();
   setupDio();
 
-  // AuthInterceptor();
-
+  print('Application start!');
   final auth = await getInitialRoute();
-  runApp(MyApp(initialRoute: auth));
+  runApp(ChatApp(initialRoute: auth));
 }
