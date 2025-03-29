@@ -190,8 +190,8 @@ public static class ApiExtensions
 
 		if (environment.IsProduction())
 		{
-			var certPath = "/app/localhost.pfx";
-			var certPassword = "1";
+			const string certPath = "/app/localhost.pfx";
+			const string certPassword = "1";
 			builder.WebHost.ConfigureKestrel(options =>
 			{
 				options.ListenAnyIP(5000);

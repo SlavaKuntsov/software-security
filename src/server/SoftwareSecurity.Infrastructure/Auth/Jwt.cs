@@ -19,14 +19,13 @@ public class Jwt(
 	: IJwt
 {
 	private readonly JwtModel _jwtOptions = jwtOptions.Value;
-	private readonly ITokensRepository _tokensRepository = tokensRepository;
 
 	public string GenerateAccessToken(Ulid id, Role role)
 	{
 		var claims = new[]
 		{
 			new Claim(ClaimTypes.NameIdentifier, id.ToString()),
-			new Claim(ClaimTypes.Role, EnumExtensions.GetDescription(role))
+			new Claim(ClaimTypes.Role, role.GetDescription())
 		};
 
 		var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.SecretKey));
@@ -51,7 +50,7 @@ public class Jwt(
 
 	public async Task<Ulid> ValidateRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken)
 	{
-		var storedToken = await _tokensRepository.GetAsync(refreshToken, cancellationToken);
+		var storedToken = await tokensRepository.GetAsync(refreshToken, cancellationToken);
 
 		if (storedToken == null || storedToken.IsRevoked || storedToken.ExpiresAt < DateTime.UtcNow)
 			return Ulid.Empty;
