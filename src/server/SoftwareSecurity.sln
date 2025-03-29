@@ -1,28 +1,26 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.12.35707.178
-MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftwareSecurity.API", "SoftwareSecurity.API\SoftwareSecurity.API.csproj", "{56398534-8D3D-4D1F-9912-367C515A8DD8}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftwareSecurity.Infrastructure", "SoftwareSecurity.Infrastructure\SoftwareSecurity.Infrastructure.csproj", "{00E35BF0-B79A-4401-A38A-D49C9C8B4A71}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftwareSecurity.Application", "SoftwareSecurity.Application\SoftwareSecurity.Application.csproj", "{60EB8D55-A864-4704-B881-BCE368AAF90C}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftwareSecurity.Domain", "SoftwareSecurity.Domain\SoftwareSecurity.Domain.csproj", "{0070DA25-F9C1-4CB9-BDEA-A972FAFB9775}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftwareSecurity.Persistence", "SoftwareSecurity.Persistence\SoftwareSecurity.Persistence.csproj", "{FB59BA21-179A-4FB1-9922-AE3B249F1881}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftwareSecurity.Tests", "SoftwareSecurity.Tests\SoftwareSecurity.Tests.csproj", "{10A001E8-C4F0-4C00-824E-AD6D9C45BD9A}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C35A3F2A-00D2-48B5-9C6E-E24B42F2A610}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UserService", "UserService", "{8C07907F-90A0-47DB-88A8-F3BAB1E8FFE7}"
 	ProjectSection(SolutionItems) = preProject
-		..\docker-compose.yml = ..\docker-compose.yml
-		..\openapi.yaml = ..\openapi.yaml
 		Dockerfile = Dockerfile
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{76D55B29-3F22-480A-98A5-90932893E7D8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftwareSecurity.API", "UserService\SoftwareSecurity.API\SoftwareSecurity.API.csproj", "{3538987A-256D-4CF9-BDE1-7DAF1ECBC2D6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftwareSecurity.Application", "UserService\SoftwareSecurity.Application\SoftwareSecurity.Application.csproj", "{D730D494-64E5-4CA4-8952-953B1299A74C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftwareSecurity.Domain", "UserService\SoftwareSecurity.Domain\SoftwareSecurity.Domain.csproj", "{2BDCCBFB-47B8-492F-9C7D-2C78518A0995}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftwareSecurity.Infrastructure", "UserService\SoftwareSecurity.Infrastructure\SoftwareSecurity.Infrastructure.csproj", "{68DE5508-F28C-48B4-B322-57D5F1263339}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftwareSecurity.Persistence", "UserService\SoftwareSecurity.Persistence\SoftwareSecurity.Persistence.csproj", "{CE37E40D-06EC-401E-9630-2CFF1AB252BE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A70A0217-8E3F-46E1-A425-10970A9D87AF}"
+	ProjectSection(SolutionItems) = preProject
+		..\.env = ..\.env
+		..\docker-compose.yml = ..\docker-compose.yml
+		..\openapi.yaml = ..\openapi.yaml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -30,40 +28,33 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{56398534-8D3D-4D1F-9912-367C515A8DD8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{56398534-8D3D-4D1F-9912-367C515A8DD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{56398534-8D3D-4D1F-9912-367C515A8DD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{56398534-8D3D-4D1F-9912-367C515A8DD8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{00E35BF0-B79A-4401-A38A-D49C9C8B4A71}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{00E35BF0-B79A-4401-A38A-D49C9C8B4A71}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{00E35BF0-B79A-4401-A38A-D49C9C8B4A71}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{00E35BF0-B79A-4401-A38A-D49C9C8B4A71}.Release|Any CPU.Build.0 = Release|Any CPU
-		{60EB8D55-A864-4704-B881-BCE368AAF90C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{60EB8D55-A864-4704-B881-BCE368AAF90C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{60EB8D55-A864-4704-B881-BCE368AAF90C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{60EB8D55-A864-4704-B881-BCE368AAF90C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0070DA25-F9C1-4CB9-BDEA-A972FAFB9775}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0070DA25-F9C1-4CB9-BDEA-A972FAFB9775}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0070DA25-F9C1-4CB9-BDEA-A972FAFB9775}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0070DA25-F9C1-4CB9-BDEA-A972FAFB9775}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FB59BA21-179A-4FB1-9922-AE3B249F1881}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FB59BA21-179A-4FB1-9922-AE3B249F1881}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FB59BA21-179A-4FB1-9922-AE3B249F1881}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FB59BA21-179A-4FB1-9922-AE3B249F1881}.Release|Any CPU.Build.0 = Release|Any CPU
-		{10A001E8-C4F0-4C00-824E-AD6D9C45BD9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{10A001E8-C4F0-4C00-824E-AD6D9C45BD9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{10A001E8-C4F0-4C00-824E-AD6D9C45BD9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{10A001E8-C4F0-4C00-824E-AD6D9C45BD9A}.Release|Any CPU.Build.0 = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
+		{3538987A-256D-4CF9-BDE1-7DAF1ECBC2D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3538987A-256D-4CF9-BDE1-7DAF1ECBC2D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3538987A-256D-4CF9-BDE1-7DAF1ECBC2D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3538987A-256D-4CF9-BDE1-7DAF1ECBC2D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D730D494-64E5-4CA4-8952-953B1299A74C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D730D494-64E5-4CA4-8952-953B1299A74C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D730D494-64E5-4CA4-8952-953B1299A74C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D730D494-64E5-4CA4-8952-953B1299A74C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2BDCCBFB-47B8-492F-9C7D-2C78518A0995}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2BDCCBFB-47B8-492F-9C7D-2C78518A0995}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2BDCCBFB-47B8-492F-9C7D-2C78518A0995}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2BDCCBFB-47B8-492F-9C7D-2C78518A0995}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68DE5508-F28C-48B4-B322-57D5F1263339}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68DE5508-F28C-48B4-B322-57D5F1263339}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68DE5508-F28C-48B4-B322-57D5F1263339}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68DE5508-F28C-48B4-B322-57D5F1263339}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CE37E40D-06EC-401E-9630-2CFF1AB252BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CE37E40D-06EC-401E-9630-2CFF1AB252BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CE37E40D-06EC-401E-9630-2CFF1AB252BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CE37E40D-06EC-401E-9630-2CFF1AB252BE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{56398534-8D3D-4D1F-9912-367C515A8DD8} = {C35A3F2A-00D2-48B5-9C6E-E24B42F2A610}
-		{00E35BF0-B79A-4401-A38A-D49C9C8B4A71} = {C35A3F2A-00D2-48B5-9C6E-E24B42F2A610}
-		{60EB8D55-A864-4704-B881-BCE368AAF90C} = {C35A3F2A-00D2-48B5-9C6E-E24B42F2A610}
-		{0070DA25-F9C1-4CB9-BDEA-A972FAFB9775} = {C35A3F2A-00D2-48B5-9C6E-E24B42F2A610}
-		{FB59BA21-179A-4FB1-9922-AE3B249F1881} = {C35A3F2A-00D2-48B5-9C6E-E24B42F2A610}
-		{10A001E8-C4F0-4C00-824E-AD6D9C45BD9A} = {76D55B29-3F22-480A-98A5-90932893E7D8}
+		{3538987A-256D-4CF9-BDE1-7DAF1ECBC2D6} = {8C07907F-90A0-47DB-88A8-F3BAB1E8FFE7}
+		{D730D494-64E5-4CA4-8952-953B1299A74C} = {8C07907F-90A0-47DB-88A8-F3BAB1E8FFE7}
+		{2BDCCBFB-47B8-492F-9C7D-2C78518A0995} = {8C07907F-90A0-47DB-88A8-F3BAB1E8FFE7}
+		{68DE5508-F28C-48B4-B322-57D5F1263339} = {8C07907F-90A0-47DB-88A8-F3BAB1E8FFE7}
+		{CE37E40D-06EC-401E-9630-2CFF1AB252BE} = {8C07907F-90A0-47DB-88A8-F3BAB1E8FFE7}
+		{8C07907F-90A0-47DB-88A8-F3BAB1E8FFE7} = {A70A0217-8E3F-46E1-A425-10970A9D87AF}
 	EndGlobalSection
 EndGlobal

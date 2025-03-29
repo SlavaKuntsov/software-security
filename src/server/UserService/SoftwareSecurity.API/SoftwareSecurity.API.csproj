@@ -2,6 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
+		<OutputType>Exe</OutputType>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<UserSecretsId>168501fa-1108-4c15-9cd3-a738c7ca4665</UserSecretsId>
@@ -9,7 +10,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-<!--		<PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="8.0.1"/>-->
+		<PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="8.0.1"/>
 		<PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.0" />
 		<PackageReference Include="DotNetEnv" Version="3.1.1" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.13" />

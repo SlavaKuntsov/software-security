@@ -1,17 +1,20 @@
 services:
   
   software-security-service:
-#    mem_limit: 256m
+    mem_limit: 256m
     restart: unless-stopped
     build:
       context: .
       dockerfile: server/Dockerfile
     expose:
-      - "5000:5000"
-    env_file:
-      - .env
+      - "5000"
+      - "5001"
+#    ports:
+#      - "5000:5000"
     volumes:
       - ./ssl/localhost.pfx:/app/localhost.pfx
+    env_file:
+      - .env
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - CONNECTION_STRING=Host=software-security-postgres;Port=5432;Database=software_security;Username=postgres;Password=1;Timezone=Europe/Minsk;
@@ -23,7 +26,7 @@ services:
   software-security-postgres:
     container_name: software-security-postgres
     image: postgres:alpine
-#    mem_limit: 512m
+    mem_limit: 512m
     restart: unless-stopped
     ports:
       - "5432:5432"
@@ -36,14 +39,16 @@ services:
 
   haproxy:
     container_name: haproxy
-    image: haproxy:2.6
-#    mem_limit: 512m
+    image: haproxy:3.1-alpine
+    mem_limit: 512m
     restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"  
+      - "8404:8404"  
     volumes:
       - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+      - ./ssl/localhost.pem:/usr/local/etc/haproxy/localhost.pem:ro
     depends_on:
       - software-security-service
 

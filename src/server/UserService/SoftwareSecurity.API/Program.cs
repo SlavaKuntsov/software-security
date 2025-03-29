@@ -1,6 +1,11 @@
 using DotNetEnv;
+
+using HealthChecks.UI.Client;
+
 using Microsoft.AspNetCore.CookiePolicy;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.HttpOverrides;
+
 using SoftwareSecurity.API.Extensions;
 using SoftwareSecurity.Application.Extensions;
 using SoftwareSecurity.Infrastructure.Extensions;
@@ -25,7 +30,7 @@ services.AddAPI()
 	.AddInfrastructure()
 	.AddPersistence(configuration);
 
-// services.AddHealthChecks();
+services.AddHealthChecks();
 
 var app = builder.Build();
 
@@ -57,12 +62,12 @@ app.UseForwardedHeaders(
 	});
 app.UseCors();
 
-// app.MapHealthChecks(
-// 	"/health",
-// 	new HealthCheckOptions
-// 	{
-// 		ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-// 	});
+app.MapHealthChecks(
+	"/health",
+	new HealthCheckOptions
+	{
+		ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+	});
 
 app.UseAuthentication();
 app.UseAuthorization();

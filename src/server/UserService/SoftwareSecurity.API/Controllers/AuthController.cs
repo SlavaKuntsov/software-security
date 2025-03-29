@@ -20,7 +20,7 @@ using SoftwareSecurity.Application.Handlers.Queries.Users.Login;
 using SoftwareSecurity.Application.Interfaces.Auth;
 using SoftwareSecurity.Domain.Constants;
 using SoftwareSecurity.Domain.Enums;
-using SoftwareSecurity.Domain.Models;
+
 using Swashbuckle.AspNetCore.Filters;
 
 using UserService.API.Contracts;
