@@ -16,6 +16,11 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftwareSecurity.Tests", "SoftwareSecurity.Tests\SoftwareSecurity.Tests.csproj", "{10A001E8-C4F0-4C00-824E-AD6D9C45BD9A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C35A3F2A-00D2-48B5-9C6E-E24B42F2A610}"
+	ProjectSection(SolutionItems) = preProject
+		..\docker-compose.yml = ..\docker-compose.yml
+		..\openapi.yaml = ..\openapi.yaml
+		Dockerfile = Dockerfile
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{76D55B29-3F22-480A-98A5-90932893E7D8}"
 EndProject
