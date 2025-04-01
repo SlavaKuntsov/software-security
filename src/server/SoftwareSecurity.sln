@@ -1,19 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UserService", "UserService", "{8C07907F-90A0-47DB-88A8-F3BAB1E8FFE7}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GeneralService", "GeneralService", "{8C07907F-90A0-47DB-88A8-F3BAB1E8FFE7}"
 	ProjectSection(SolutionItems) = preProject
 		Dockerfile = Dockerfile
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftwareSecurity.API", "UserService\SoftwareSecurity.API\SoftwareSecurity.API.csproj", "{3538987A-256D-4CF9-BDE1-7DAF1ECBC2D6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftwareSecurity.API", "GeneralService\SoftwareSecurity.API\SoftwareSecurity.API.csproj", "{3538987A-256D-4CF9-BDE1-7DAF1ECBC2D6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftwareSecurity.Application", "UserService\SoftwareSecurity.Application\SoftwareSecurity.Application.csproj", "{D730D494-64E5-4CA4-8952-953B1299A74C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftwareSecurity.Application", "GeneralService\SoftwareSecurity.Application\SoftwareSecurity.Application.csproj", "{D730D494-64E5-4CA4-8952-953B1299A74C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftwareSecurity.Domain", "UserService\SoftwareSecurity.Domain\SoftwareSecurity.Domain.csproj", "{2BDCCBFB-47B8-492F-9C7D-2C78518A0995}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftwareSecurity.Domain", "GeneralService\SoftwareSecurity.Domain\SoftwareSecurity.Domain.csproj", "{2BDCCBFB-47B8-492F-9C7D-2C78518A0995}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftwareSecurity.Infrastructure", "UserService\SoftwareSecurity.Infrastructure\SoftwareSecurity.Infrastructure.csproj", "{68DE5508-F28C-48B4-B322-57D5F1263339}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftwareSecurity.Infrastructure", "GeneralService\SoftwareSecurity.Infrastructure\SoftwareSecurity.Infrastructure.csproj", "{68DE5508-F28C-48B4-B322-57D5F1263339}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftwareSecurity.Persistence", "UserService\SoftwareSecurity.Persistence\SoftwareSecurity.Persistence.csproj", "{CE37E40D-06EC-401E-9630-2CFF1AB252BE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftwareSecurity.Persistence", "GeneralService\SoftwareSecurity.Persistence\SoftwareSecurity.Persistence.csproj", "{CE37E40D-06EC-401E-9630-2CFF1AB252BE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A70A0217-8E3F-46E1-A425-10970A9D87AF}"
 	ProjectSection(SolutionItems) = preProject
