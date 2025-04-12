@@ -1,14 +1,14 @@
 ﻿using System.Security.Claims;
 
 using Asp.Versioning;
-
+using Google.Apis.Auth;
 using MediatR;
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
+using SoftwareSecurity.API.Contracts;
 using SoftwareSecurity.Application.DTOs;
 using SoftwareSecurity.Application.Handlers.Commands.Auth.Registration;
 using SoftwareSecurity.Application.Handlers.Commands.Auth.Unauthorize;
@@ -183,5 +183,69 @@ public class AuthController(
 			user,
 			authResultDto
 		});
+	}
+	
+
+	[HttpPost("google-mobile-auth")]
+	public async Task<IActionResult> GoogleMobileAuth(
+		[FromBody] GoogleAuthRequest request,
+		CancellationToken cancellationToken)
+	{
+		var clientId = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID");
+
+		var payload = await GoogleJsonWebSignature.ValidateAsync(
+			request.IdToken,
+			new GoogleJsonWebSignature.ValidationSettings
+			{
+				Audience = [clientId]
+			});
+
+		var email = payload.Email;
+		var firstName = payload.GivenName;
+		var lastName = payload.FamilyName;
+
+		if (string.IsNullOrEmpty(email))
+			return BadRequest("Invalid Google credentials.");
+
+		var user = await mediator.Send(new GetUserByEmailQuery(email), cancellationToken);
+
+		var authResultDto = default(SoftwareSecurity.Application.DTOs.AuthDTO);
+		var text = default(string);
+
+		if (user is not null)
+		{
+			authResultDto = await mediator.Send(
+				new GenerateTokensCommand(user.Id, user.Role),
+				cancellationToken);
+
+			text = "login";
+		}
+		else
+		{
+			authResultDto = await mediator.Send(
+				new UserRegistrationCommand(
+					email,
+					string.Empty,
+					firstName,
+					lastName,
+					string.Empty,
+					AuthType.Google),
+				cancellationToken);
+
+			text = "registration";
+		}
+
+		HttpContext.Response.Cookies.Append(
+			JwtConstants.REFRESH_COOKIE_NAME,
+			authResultDto.RefreshToken
+		);
+
+		return Ok(
+			new
+			{
+				text,
+				user,
+				authResultDto
+			});
 	}
 }
