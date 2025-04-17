@@ -105,12 +105,12 @@ public static class ApiExtensions
 			throw new Exception("Google client data is null.");
 
 		services
-			.AddAuthentication(
-				options =>
-				{
-					options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-					options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-				})
+			.AddAuthentication(options =>
+			{
+				options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+				options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
+				options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+			})
 			.AddJwtBearer(
 				JwtBearerDefaults.AuthenticationScheme,
 				options =>
@@ -130,14 +130,8 @@ public static class ApiExtensions
 
 					options.Events = new JwtBearerEvents
 					{
-						OnAuthenticationFailed = context =>
-						{
-							return Task.CompletedTask;
-						},
-						OnTokenValidated = context =>
-						{
-							return Task.CompletedTask;
-						}
+						OnAuthenticationFailed = _ => Task.CompletedTask,
+						OnTokenValidated = _ => Task.CompletedTask
 					};
 				})
 			.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -162,8 +156,8 @@ public static class ApiExtensions
 					{
 						policy.WithOrigins("http://localhost:5000");
 						policy.WithOrigins("https://localhost:5001");
-						policy.WithOrigins("https://accounts.google.com");
-						policy.WithOrigins("http://10.0.2.2");
+						// policy.WithOrigins("https://accounts.google.com");
+						// policy.WithOrigins("http://10.0.2.2");
 						policy.AllowAnyHeader();
 						policy.AllowAnyMethod();
 						policy.AllowCredentials();
