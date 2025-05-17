@@ -111,8 +111,7 @@ public static class ApiExtensions
 				options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
 				options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 			})
-			.AddJwtBearer(
-				JwtBearerDefaults.AuthenticationScheme,
+			.AddJwtBearer(JwtBearerDefaults.AuthenticationScheme,
 				options =>
 				{
 					options.RequireHttpsMetadata = true;

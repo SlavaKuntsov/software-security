@@ -1,3 +1,3 @@
-﻿namespace SoftwareSecurity.API.Contracts;
- 
+namespace SoftwareSecurity.API.Contracts;
+
 public sealed record GoogleAuthRequest(string IdToken);

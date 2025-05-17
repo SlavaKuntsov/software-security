@@ -185,38 +185,39 @@ public class AuthController(
 		});
 	}
 	
+
 	[HttpPost("google-mobile-auth")]
 	public async Task<IActionResult> GoogleMobileAuth(
 		[FromBody] GoogleAuthRequest request,
 		CancellationToken cancellationToken)
 	{
 		var clientId = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID");
- 
+
 		var payload = await GoogleJsonWebSignature.ValidateAsync(
 			request.IdToken,
 			new GoogleJsonWebSignature.ValidationSettings
 			{
 				Audience = [clientId]
 			});
- 
+
 		var email = payload.Email;
 		var firstName = payload.GivenName;
 		var lastName = payload.FamilyName;
- 
+
 		if (string.IsNullOrEmpty(email))
 			return BadRequest("Invalid Google credentials.");
- 
+
 		var user = await mediator.Send(new GetUserByEmailQuery(email), cancellationToken);
- 
+
 		var authResultDto = default(SoftwareSecurity.Application.DTOs.AuthDTO);
 		var text = default(string);
- 
+
 		if (user is not null)
 		{
 			authResultDto = await mediator.Send(
 				new GenerateTokensCommand(user.Id, user.Role),
 				cancellationToken);
- 
+
 			text = "login";
 		}
 		else
@@ -230,15 +231,15 @@ public class AuthController(
 					string.Empty,
 					AuthType.Google),
 				cancellationToken);
- 
+
 			text = "registration";
 		}
- 
+
 		HttpContext.Response.Cookies.Append(
 			JwtConstants.REFRESH_COOKIE_NAME,
 			authResultDto.RefreshToken
 		);
- 
+
 		return Ok(
 			new
 			{
