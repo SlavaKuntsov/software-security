@@ -2,17 +2,17 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 
 WORKDIR /app
 
-COPY ["server/UserService/SoftwareSecurity.API/SoftwareSecurity.API.csproj", "server/UserService/SoftwareSecurity.API/"]
-COPY ["server/UserService/SoftwareSecurity.Domain/SoftwareSecurity.Domain.csproj", "server/UserService/SoftwareSecurity.Domain/"]
-COPY ["server/UserService/SoftwareSecurity.Infrastructure/SoftwareSecurity.Infrastructure.csproj", "server/UserService/SoftwareSecurity.Infrastructure/"]
-COPY ["server/UserService/SoftwareSecurity.Application/SoftwareSecurity.Application.csproj", "server/UserService/SoftwareSecurity.Application/"]
-COPY ["server/UserService/SoftwareSecurity.Persistence/SoftwareSecurity.Persistence.csproj", "server/UserService/SoftwareSecurity.Persistence/"]
+COPY ["server/GeneralService/SoftwareSecurity.API/SoftwareSecurity.API.csproj", "server/GeneralService/SoftwareSecurity.API/"]
+COPY ["server/GeneralService/SoftwareSecurity.Domain/SoftwareSecurity.Domain.csproj", "server/GeneralService/SoftwareSecurity.Domain/"]
+COPY ["server/GeneralService/SoftwareSecurity.Infrastructure/SoftwareSecurity.Infrastructure.csproj", "server/GeneralService/SoftwareSecurity.Infrastructure/"]
+COPY ["server/GeneralService/SoftwareSecurity.Application/SoftwareSecurity.Application.csproj", "server/GeneralService/SoftwareSecurity.Application/"]
+COPY ["server/GeneralService/SoftwareSecurity.Persistence/SoftwareSecurity.Persistence.csproj", "server/GeneralService/SoftwareSecurity.Persistence/"]
 
-RUN dotnet restore "server/UserService/SoftwareSecurity.API/SoftwareSecurity.API.csproj"
+RUN dotnet restore "server/GeneralService/SoftwareSecurity.API/SoftwareSecurity.API.csproj"
 
 COPY . . 
 
-RUN dotnet publish "server/UserService/SoftwareSecurity.API/SoftwareSecurity.API.csproj" -c Release -o /app/publish
+RUN dotnet publish "server/GeneralService/SoftwareSecurity.API/SoftwareSecurity.API.csproj" -c Release -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS runtime
 WORKDIR /app
