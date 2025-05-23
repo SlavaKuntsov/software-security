@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/utils/input_validator.dart';
@@ -21,6 +22,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  final _birthDateController = TextEditingController();
 
   final _firstNameFocusNode = FocusNode();
   final _lastNameFocusNode = FocusNode();
@@ -29,6 +31,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _confirmPasswordFocusNode = FocusNode();
 
   bool _isGoogleSignIn = false;
+  DateTime? _selectedDate;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    if (authProvider.savedEmail != null &&
+        authProvider.savedEmail!.isNotEmpty) {
+      _emailController.text = authProvider.savedEmail!;
+      FocusScope.of(context).requestFocus(_passwordFocusNode);
+    }
+  }
 
   @override
   void dispose() {
@@ -50,6 +66,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       final firstName = _firstNameController.text.trim();
       final lastName = _lastNameController.text.trim();
       final password = _passwordController.text;
+      final dateOfBirth = _birthDateController.text;
 
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final success = await authProvider.registration(
@@ -57,6 +74,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         password: password,
         firstName: firstName,
         lastName: lastName,
+        dateOfBirth: dateOfBirth,
       );
 
       if (mounted && success) {
@@ -68,23 +86,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
         );
         Navigator.of(context).pop();
-      }
-    }
-  }
-
-  void _onLoginPressed() async {
-    if (_formKey.currentState?.validate() ?? false) {
-      final email = _emailController.text.trim();
-      final password = _passwordController.text;
-
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      final success = await authProvider.login(
-        email: email,
-        password: password,
-      );
-
-      if (success && mounted) {
-        Navigator.of(context).pushReplacementNamed('/home');
       }
     }
   }
@@ -126,13 +127,45 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Colors.blue, // Цвет выбранной даты
+              onPrimary: Colors.white, // Цвет текста выбранной даты
+              onSurface: Colors.black, // Цвет текста в календаре
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.blue, // Цвет кнопок
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+        _birthDateController.text = DateFormat('dd.MM.yyyy').format(picked);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
     final errorMessage = authProvider.errorMessage;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Регистрация')),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -144,14 +177,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const Text(
-                      'Создайте аккаунт',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
+                    Padding(
+                      padding: const EdgeInsets.only(top: 32),
+                      child: const Text(
+                        'Создайте аккаунт',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 24),
                     AuthInputField(
                       label: 'Имя',
                       hintText: 'Введите ваше имя',
@@ -217,6 +253,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       onEditingComplete: _onRegisterPressed,
                       prefixIcon: const Icon(Icons.lock_outline),
                     ),
+                    const SizedBox(height: 4),
+                    GestureDetector(
+                      onTap: () => _selectDate(context),
+                      child: AbsorbPointer(
+                        child: AuthInputField(
+                          label: 'Дата рождения',
+                          hintText: 'Выберите дату',
+                          controller: _birthDateController,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Пожалуйста, выберите дату рождения';
+                            }
+                            return null;
+                          },
+                          prefixIcon: const Icon(Icons.calendar_today),
+                        ),
+                      ),
+                    ),
                     const SizedBox(height: 24),
                     if (errorMessage != null) ...[
                       Container(
@@ -267,6 +321,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           onPressed: () {
                             // Возврат на экран входа
                             Navigator.of(context).pop();
+                            final email = _emailController.text.trim();
+                            final authProvider = Provider.of<AuthProvider>(
+                              context,
+                              listen: false,
+                            );
+                            authProvider.updateSavedEmail(email);
                           },
                           child: const Text('Войти'),
                         ),

@@ -1,38 +1,36 @@
-enum Environment { dev, staging, prod }
+enum Environment { dev, prod }
 
 class EnvironmentConfig {
   static Environment _environment = Environment.dev;
+  static String ipAddress = "192.168.0.103";
 
-  // Установка текущего окружения
   static void setEnvironment(Environment env) {
     _environment = env;
   }
 
-  // Получение текущего окружения
   static Environment getEnvironment() {
     return _environment;
   }
 
-  // Проверка на окружение разработки
   static bool isDevelopment() {
     return _environment == Environment.dev;
   }
 
-  // Проверка на продакшн
   static bool isProduction() {
     return _environment == Environment.prod;
   }
 
-  // Базовый URL для сервиса пользователей
-  static String get userServiceBaseUrl {
+  static String get baseUrl {
     switch (_environment) {
       case Environment.dev:
-        return 'http://10.0.2.2:5000/api/v1';
-      // return 'https://localhost:7001';
-      case Environment.staging:
-        return 'https://staging-api.yourapp.com/user-service';
+        return 'http://$ipAddress:5000/api/v1';
       case Environment.prod:
-        return 'https://api.yourapp.com/user-service';
+        return 'https://$ipAddress:5001/api/v1';
     }
+  }
+  
+  // Путь к папке с сертификатами
+  static String get sslCertPath {
+    return 'assets/certificates';
   }
 }

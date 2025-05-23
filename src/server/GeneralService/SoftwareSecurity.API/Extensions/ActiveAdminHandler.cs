@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace SoftwareSecurity.API.Extensions;
 
-public class ActiveAdminHandler() : AuthorizationHandler<ActiveAdminRequirement>
+public class ActiveAdminHandler : AuthorizationHandler<ActiveAdminRequirement>
 {
 	protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, ActiveAdminRequirement requirement)
 	{
@@ -21,4 +21,4 @@ public class ActiveAdminHandler() : AuthorizationHandler<ActiveAdminRequirement>
 	}
 }
 
-public record ActiveAdminRequirement() : IAuthorizationRequirement;
+public record ActiveAdminRequirement : IAuthorizationRequirement;

@@ -7,8 +7,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../core/constants/oauth_constants.dart';
 import '../core/network/api_client.dart';
 import '../core/network/network_info.dart';
-import '../data/datasources/auth_remote_data_source.dart';
-import '../data/datasources/google_auth_service.dart';
+import '../core/network/secure_http_client.dart';
+import '../data/datasources/auth/auth_remote_data_source.dart';
+import '../data/datasources/auth/google_auth_service.dart';
 import '../data/repositories/auth_repository_impl.dart';
 import '../domain/repositories/auth_repository.dart';
 import '../domain/usecases/auth/google_sign_in.dart';
@@ -23,13 +24,14 @@ Future<void> init() async {
   // Providers
   sl.registerFactory(
     () => AuthProvider(
+      repository: sl(),
       loginUseCase: sl(),
       registrationUseCase: sl(),
       googleSignInUseCase: sl(),
       googleSignIn: sl(),
+      prefs: sl(),
     ),
   );
-
   sl.registerFactory(() => ThemeProvider());
 
   // Use cases
@@ -59,13 +61,25 @@ Future<void> init() async {
   // Core
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
 
-  sl.registerLazySingleton<ApiClient>(() => ApiClient(sl(), sl()));
+  sl.registerLazySingleton<ApiClient>(
+    () => ApiClient(
+      sl<Dio>(),
+      sl<SharedPreferences>(),
+      onLogoutRequired: () {
+        if (sl.isRegistered<AuthProvider>()) {
+          sl<AuthProvider>().forceLogout();
+        }
+      },
+    ),
+  );
 
   // External
   final sharedPreferences = await SharedPreferences.getInstance();
   sl.registerLazySingleton(() => sharedPreferences);
 
-  sl.registerLazySingleton(() => Dio());
+  // Create and register a secure Dio instance
+  final dio = await SecureHttpClient.createDio();
+  sl.registerLazySingleton(() => dio);
 
   sl.registerLazySingleton(() => Connectivity());
 

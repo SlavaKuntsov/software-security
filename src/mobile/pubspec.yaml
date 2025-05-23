@@ -1,8 +1,8 @@
-# Конфигурация проекта
-name: chat
-description: "A new Flutter project."
+name: securitychat
+description: "Flutter application for 'Security Chat'."
 publish_to: 'none'
 version: 0.1.0
+
 
 environment:
   sdk: ^3.7.0
@@ -12,6 +12,7 @@ dependencies:
     sdk: flutter
 
   # UI
+  google_fonts: ^6.2.1
   cupertino_icons: ^1.0.8
   flutter_svg: ^2.0.7
   cached_network_image: ^3.2.3
@@ -31,13 +32,15 @@ dependencies:
   shared_preferences: ^2.2.1
 
   # Utils
-  equatable: ^2.0.5
+  equatable: ^2.0.7
   dartz: ^0.10.1
   get_it: ^7.6.0
   logger: ^2.0.1
-  intl: ^0.18.1
   package_info_plus: ^4.1.0
-
+  signalr_netcore: ^1.4.3
+  image_picker: ^1.1.2
+  fl_chart: ^1.0.0
+  intl: ^0.18.1
 
 dev_dependencies:
   flutter_test:
@@ -45,8 +48,9 @@ dev_dependencies:
   flutter_lints: ^5.0.0
 
 flutter:
-  uses-material-design: true
-
   assets:
     - assets/images/
     - assets/icons/
+    - assets/certificates/
+
+  uses-material-design: true

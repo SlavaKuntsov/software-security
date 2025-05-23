@@ -2,29 +2,41 @@ import '../../../domain/entities/auth/user.dart';
 
 class UserModel extends User {
   const UserModel({
-    required String id,
-    required String email,
-    required String name,
-    String? photoUrl,
-    required bool isEmailVerified,
-    required DateTime createdAt,
-  }) : super(
-         id: id,
-         email: email,
-         name: name,
-         photoUrl: photoUrl,
-         isEmailVerified: isEmailVerified,
-         createdAt: createdAt,
-       );
+    required super.id,
+    required super.email,
+    required super.firstName,
+    required super.lastName,
+    required super.role,
+    required super.dateOfBirth,
+    required super.balance,
+    super.photoUrl,
+    required super.createdAt,
+  });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
+    double parseDouble(dynamic value) {
+      if (value == null) return 0.0;
+      if (value is int) return value.toDouble();
+      if (value is double) return value;
+      if (value is String) {
+        try {
+          return double.parse(value);
+        } catch (e) {
+          return 0.0;
+        }
+      }
+      return 0.0;
+    }
+
     return UserModel(
       id: json['id'],
       email: json['email'],
-      name: json['name'],
-      photoUrl: json['photo_url'],
-      isEmailVerified: json['is_email_verified'] ?? false,
-      createdAt: DateTime.parse(json['created_at']),
+      firstName: json['firstName'],
+      lastName: json['lastName'],
+      role: json['role'] ?? '',
+      dateOfBirth: json['dateOfBirth'] ?? '',
+      balance: 0,
+      createdAt: DateTime.now(),
     );
   }
 
@@ -32,9 +44,9 @@ class UserModel extends User {
     return {
       'id': id,
       'email': email,
-      'name': name,
+      'firstName': firstName,
+      'lastName': lastName,
       'photo_url': photoUrl,
-      'is_email_verified': isEmailVerified,
       'created_at': createdAt.toIso8601String(),
     };
   }
@@ -43,27 +55,36 @@ class UserModel extends User {
     return UserModel(
       id: user.id,
       email: user.email,
-      name: user.name,
+      firstName: user.firstName,
+      lastName: user.lastName,
       photoUrl: user.photoUrl,
-      isEmailVerified: user.isEmailVerified,
       createdAt: user.createdAt,
+      dateOfBirth: user.dateOfBirth,
+      role: user.role,
+      balance: user.balance,
     );
   }
 
   UserModel copyWith({
     String? id,
     String? email,
-    String? name,
+    String? firstName,
+    String? lastName,
     String? photoUrl,
-    bool? isEmailVerified,
+    String? role,
+    String? dateOfBirth,
+    double? balance,
     DateTime? createdAt,
   }) {
     return UserModel(
       id: id ?? this.id,
       email: email ?? this.email,
-      name: name ?? this.name,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
+      role: role ?? this.role,
+      dateOfBirth: dateOfBirth ?? this.dateOfBirth,
+      balance: balance ?? this.balance,
       photoUrl: photoUrl ?? this.photoUrl,
-      isEmailVerified: isEmailVerified ?? this.isEmailVerified,
       createdAt: createdAt ?? this.createdAt,
     );
   }

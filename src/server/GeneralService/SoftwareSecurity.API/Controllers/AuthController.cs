@@ -41,8 +41,9 @@ public class AuthController(
 	{
 		var refreshToken = cookieService.GetRefreshToken();
 
-		var userRoleDto = await mediator.Send(new GetByRefreshTokenCommand(
-			refreshToken),
+		var userRoleDto = await mediator.Send(
+			new GetByRefreshTokenCommand(
+				refreshToken),
 			cancellationToken);
 
 		var authResultDto = await mediator.Send(
@@ -53,17 +54,15 @@ public class AuthController(
 			JwtConstants.REFRESH_COOKIE_NAME,
 			authResultDto.RefreshToken);
 
-		return Ok(new AccessTokenDTO(
-			authResultDto.AccessToken,
-			authResultDto.RefreshToken));
+		return Ok(new { authResultDto.AccessToken, authResultDto.RefreshToken });
 	}
 
 	[HttpGet("authorize")]
 	[Authorize(Policy = "All")]
 	public async Task<IActionResult> Authorize(CancellationToken cancellationToken)
 	{
-		var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)
-			?? throw new UnauthorizedAccessException("User ID not found in claims.");
+		var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) 
+						?? throw new UnauthorizedAccessException("User ID not found in claims.");
 
 		if (!Ulid.TryParse(userIdClaim.Value, out var userId))
 			throw new UnauthorizedAccessException("Invalid User ID format in claims.");
@@ -80,7 +79,7 @@ public class AuthController(
 	public async Task<IActionResult> Unauthorize(CancellationToken cancellationToken)
 	{
 		var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)
-			?? throw new UnauthorizedAccessException("User ID not found in claims.");
+						?? throw new UnauthorizedAccessException("User ID not found in claims.");
 
 		var userId = Ulid.Parse(userIdClaim.Value);
 
@@ -90,7 +89,7 @@ public class AuthController(
 
 		return Ok();
 	}
-
+	
 	[HttpPost("login")]
 	[SwaggerRequestExample(typeof(CreateLoginRequest), typeof(CreateLoginRequestExample))]
 	public async Task<IActionResult> Login([FromBody] CreateLoginRequest request, CancellationToken cancellationToken)
@@ -127,6 +126,7 @@ public class AuthController(
 	{
 		var redirectUrl = Url.Action("GoogleResponse", "Auth");
 		var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
+
 		return Challenge(properties, GoogleDefaults.AuthenticationScheme);
 	}
 
@@ -134,6 +134,7 @@ public class AuthController(
 	public async Task<IActionResult> GoogleResponse(CancellationToken cancellationToken)
 	{
 		var result = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
+
 		if (!result.Succeeded)
 			return BadRequest("Google authentication failed.");
 
@@ -159,32 +160,32 @@ public class AuthController(
 		}
 		else
 		{
-			authResultDto = await mediator.Send(new UserRegistrationCommand(
-				email,
-				string.Empty,
-				firstName,
-				lastName,
-				string.Empty,
-				AuthType.Google), cancellationToken);
+			authResultDto = await mediator.Send(
+				new UserRegistrationCommand(
+					email,
+					string.Empty,
+					firstName,
+					lastName,
+					string.Empty,
+					AuthType.Google),
+				cancellationToken);
 
 			text = "registration";
-
-			user = await mediator.Send(new GetUserByEmailQuery(email), cancellationToken);
 		}
 
 		HttpContext.Response.Cookies.Append(
 			JwtConstants.REFRESH_COOKIE_NAME,
 			authResultDto.RefreshToken
-			);
+		);
 
-		return Ok(new
-		{
-			text,
-			user,
-			authResultDto
-		});
+		return Ok(
+			new
+			{
+				text,
+				user,
+				authResultDto
+			});
 	}
-	
 
 	[HttpPost("google-mobile-auth")]
 	public async Task<IActionResult> GoogleMobileAuth(
@@ -209,7 +210,7 @@ public class AuthController(
 
 		var user = await mediator.Send(new GetUserByEmailQuery(email), cancellationToken);
 
-		var authResultDto = default(SoftwareSecurity.Application.DTOs.AuthDTO);
+		var authResultDto = default(AuthDTO);
 		var text = default(string);
 
 		if (user is not null)

@@ -5,7 +5,7 @@ using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.HttpOverrides;
-
+using Serilog;
 using SoftwareSecurity.API.Extensions;
 using SoftwareSecurity.Application.Extensions;
 using SoftwareSecurity.Infrastructure.Extensions;
@@ -16,6 +16,9 @@ Env.Load("./../../../.env");
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 var configuration = builder.Configuration;
+
+builder.Host.UseSerilog((context, config) => 
+	config.ReadFrom.Configuration(context.Configuration).Enrich.FromLogContext());
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

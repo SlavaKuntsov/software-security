@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -5,30 +6,35 @@ import '../constants/oauth_constants.dart';
 
 /// Конфигурация для Google Services, адаптированная для различных сред
 class GoogleServicesConfig {
+  static GoogleSignIn? _googleSignIn;
+
   /// Создает экземпляр GoogleSignIn с подходящими настройками
   /// в зависимости от среды исполнения
-  static GoogleSignIn createGoogleSignIn({
-    List<String> scopes = const ['email', 'profile', 'openid'],
-    String? clientId,
-  }) {
-    // ВАЖНО: для получения idToken в Android необходимо указать serverClientId
-    final serverClientId = GoogleOAuthConstants.WEB_CLIENT_ID;
+  static GoogleSignIn createGoogleSignIn() {
+    // Apply SSL security bypass for development environment
+    HttpOverrides.global = _DevHttpOverrides();
+    
+    _googleSignIn = GoogleSignIn(
+      scopes: ['email', 'profile', 'openid'],
+      serverClientId: GoogleOAuthConstants.WEB_CLIENT_ID,
+    );
+    return _googleSignIn!;
+  }
 
-    if (kIsWeb) {
-      // Web требует явного clientId
-      return GoogleSignIn(scopes: scopes, clientId: clientId);
-    } else if (defaultTargetPlatform == TargetPlatform.android) {
-      // На Android необходимо указывать serverClientId для получения idToken
-      return GoogleSignIn(
-        scopes: scopes,
-        serverClientId: serverClientId, // Это критически важный параметр!
-      );
-    } else if (defaultTargetPlatform == TargetPlatform.iOS) {
-      // iOS использует serverClientId и не требует clientId
-      return GoogleSignIn(scopes: scopes, serverClientId: serverClientId);
-    } else {
-      // Для других платформ
-      return GoogleSignIn(scopes: scopes, clientId: clientId);
+  static GoogleSignIn get googleSignIn {
+    if (_googleSignIn == null) {
+      return createGoogleSignIn();
     }
+    return _googleSignIn!;
+  }
+}
+
+// Override HTTP client to accept all certificates in development
+class _DevHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
   }
 }

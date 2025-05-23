@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/constants/app_constants.dart';
 import '../../../core/utils/input_validator.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/auth/auth_button.dart';
@@ -21,6 +22,19 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailFocusNode = FocusNode();
   final _passwordFocusNode = FocusNode();
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    if (authProvider.savedEmail != null &&
+        authProvider.savedEmail!.isNotEmpty) {
+      _emailController.text = authProvider.savedEmail!;
+      FocusScope.of(context).requestFocus(_passwordFocusNode);
+    }
+  }
+
   bool _isGoogleSignIn = false;
 
   @override
@@ -31,8 +45,6 @@ class _LoginScreenState extends State<LoginScreen> {
     _passwordFocusNode.dispose();
     super.dispose();
   }
-
-  // TODO при загрузке логина вставлять savedEmail из AuthProviider если он есть
 
   void _onLoginPressed() async {
     if (_formKey.currentState?.validate() ?? false) {
@@ -98,8 +110,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const Text(
-                      'Вход в Untitled Chat',
+                    Text(
+                      'Вход в ${AppConstants.appName}',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -132,17 +144,17 @@ class _LoginScreenState extends State<LoginScreen> {
                       onEditingComplete: _onLoginPressed,
                       prefixIcon: const Icon(Icons.lock_outline),
                     ),
-                    const SizedBox(height: 8),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: () {
-                          // Навигация на экран восстановления пароля
-                        },
-                        child: const Text('Забыли пароль?'),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
+                    // const SizedBox(height: 8),
+                    // Align(
+                    //   alignment: Alignment.centerRight,
+                    //   child: TextButton(
+                    //     onPressed: () {
+                    //       // Навигация на экран восстановления пароля
+                    //     },
+                    //     child: const Text('Забыли пароль?'),
+                    //   ),
+                    // ),
+                    const SizedBox(height: 32),
                     if (errorMessage != null) ...[
                       Container(
                         padding: const EdgeInsets.all(8),
@@ -179,7 +191,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       onPressed: _onGoogleSignInPressed,
                       isLoading: authProvider.isLoading && _isGoogleSignIn,
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 12),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -191,6 +203,12 @@ class _LoginScreenState extends State<LoginScreen> {
                           onPressed: () {
                             // Навигация на экран регистрации
                             Navigator.of(context).pushNamed('/register');
+                            final email = _emailController.text.trim();
+                            final authProvider = Provider.of<AuthProvider>(
+                              context,
+                              listen: false,
+                            );
+                            authProvider.updateSavedEmail(email);
                           },
                           child: const Text('Зарегистрироваться'),
                         ),
