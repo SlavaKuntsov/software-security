@@ -9,8 +9,8 @@ services:
     expose:
       - "5000"
       - "5001"
-#    ports:
-#      - "5000:5000"
+    #    ports:
+    #      - "5000:5000"
     volumes:
       - ./ssl/localhost.pfx:/app/localhost.pfx
     env_file:
@@ -44,8 +44,8 @@ services:
     restart: unless-stopped
     ports:
       - "80:80"
-      - "443:443"  
-      - "8404:8404"  
+      - "443:443"
+      - "8404:8404"
     volumes:
       - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
       - ./ssl/localhost.pem:/usr/local/etc/haproxy/localhost.pem:ro

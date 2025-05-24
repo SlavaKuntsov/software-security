@@ -1,36 +1,36 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Bogus" Version="35.6.2" />
-    <PackageReference Include="coverlet.msbuild" Version="6.0.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="MediatR" Version="12.4.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.2" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
-    <PackageReference Include="Microsoft.TestPlatform" Version="17.13.0" />
-    <PackageReference Include="Moq" Version="4.20.72" />
-	<PackageReference Include="xunit" Version="2.9.3" />
-    <PackageReference Include="xunit.assert" Version="2.9.3" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.2">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Bogus" Version="35.6.2"/>
+        <PackageReference Include="coverlet.msbuild" Version="6.0.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="MediatR" Version="12.4.1"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.2"/>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0"/>
+        <PackageReference Include="Microsoft.TestPlatform" Version="17.13.0"/>
+        <PackageReference Include="Moq" Version="4.20.72"/>
+        <PackageReference Include="xunit" Version="2.9.3"/>
+        <PackageReference Include="xunit.assert" Version="2.9.3"/>
+        <PackageReference Include="xunit.runner.visualstudio" Version="3.0.2">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\SoftwareSecurity.API\SoftwareSecurity.API.csproj" />
-    <ProjectReference Include="..\SoftwareSecurity.Application\SoftwareSecurity.Application.csproj" />
-    <ProjectReference Include="..\SoftwareSecurity.Domain\SoftwareSecurity.Domain.csproj" />
-    <ProjectReference Include="..\SoftwareSecurity.Infrastructure\SoftwareSecurity.Infrastructure.csproj" />
-    <ProjectReference Include="..\SoftwareSecurity.Persistence\SoftwareSecurity.Persistence.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\SoftwareSecurity.API\SoftwareSecurity.API.csproj"/>
+        <ProjectReference Include="..\SoftwareSecurity.Application\SoftwareSecurity.Application.csproj"/>
+        <ProjectReference Include="..\SoftwareSecurity.Domain\SoftwareSecurity.Domain.csproj"/>
+        <ProjectReference Include="..\SoftwareSecurity.Infrastructure\SoftwareSecurity.Infrastructure.csproj"/>
+        <ProjectReference Include="..\SoftwareSecurity.Persistence\SoftwareSecurity.Persistence.csproj"/>
+    </ItemGroup>
 
 </Project>

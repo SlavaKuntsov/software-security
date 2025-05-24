@@ -21,6 +21,7 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final _messageController = TextEditingController();
+  final _scrollController = ScrollController();
   bool _isLoading = false;
   ChatProvider? _chatProvider;
   String? _error;
@@ -32,10 +33,27 @@ class _ChatScreenState extends State<ChatScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         _initChat();
+        
+        // Добавляем слушатель провайдера для прокрутки при получении новых сообщений
+        final chatProvider = Provider.of<ChatProvider>(context, listen: false);
+        chatProvider.addListener(_handleProviderUpdate);
       }
     });
   }
   
+  // Прокрутка списка сообщений к последнему сообщению (теперь к началу списка)
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      Future.delayed(const Duration(milliseconds: 100), () {
+        _scrollController.animateTo(
+          0.0, // При reverse: true последние сообщения наверху списка
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      });
+    }
+  }
+
   // Безопасная инициализация чата
   Future<void> _initChat() async {
     if (!mounted) return;
@@ -76,6 +94,9 @@ class _ChatScreenState extends State<ChatScreen> {
         debugPrint('ChatScreen: отмечаем сообщения как прочитанные');
         await _chatProvider!.markMessagesAsRead();
         debugPrint('ChatScreen: сообщения отмечены как прочитанные');
+        
+        // Прокручиваем к последнему сообщению после загрузки
+        _scrollToBottom();
       }
     } catch (e) {
       debugPrint('ChatScreen: ошибка при инициализации чата - $e');
@@ -94,9 +115,22 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  // Обработчик обновлений провайдера
+  void _handleProviderUpdate() {
+    if (mounted && _chatProvider != null && _chatProvider!.status == ChatStatus.success) {
+      // Прокручиваем вниз при получении новых сообщений
+      _scrollToBottom();
+    }
+  }
+
   @override
   void dispose() {
+    // Удаляем слушатель перед уничтожением виджета
+    if (_chatProvider != null) {
+      _chatProvider!.removeListener(_handleProviderUpdate);
+    }
     _messageController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -141,6 +175,8 @@ class _ChatScreenState extends State<ChatScreen> {
         title: Text(widget.chatPartnerName),
         backgroundColor: AppTheme.primaryColor,
       ),
+      // Указываем, что контент должен адаптироваться к появлению клавиатуры
+      resizeToAvoidBottomInset: true,
       body: Column(
         children: [
           Expanded(
@@ -171,15 +207,19 @@ class _ChatScreenState extends State<ChatScreen> {
                   return const Center(child: Text('Нет сообщений, напишите первым!'));
                 }
                 
+                // Используем reverse для показа последних сообщений
                 return ListView.builder(
                   padding: const EdgeInsets.all(16),
                   itemCount: messages.length,
-                  reverse: false,
+                  controller: _scrollController,
+                  reverse: true, // Переворачиваем список, чтобы последние сообщения были внизу
                   itemBuilder: (context, index) {
-                    if (index >= messages.length) {
+                    // При reverse: true индексы инвертированы - меняем для правильного отображения
+                    final reverseIndex = messages.length - 1 - index;
+                    if (reverseIndex < 0 || reverseIndex >= messages.length) {
                       return const SizedBox.shrink();
                     }
-                    final message = messages[index];
+                    final message = messages[reverseIndex];
                     return _buildMessageItem(message, chatProvider.isMyMessage(message));
                   },
                 );
@@ -285,11 +325,19 @@ class _ChatScreenState extends State<ChatScreen> {
           Expanded(
             child: TextField(
               controller: _messageController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 hintText: 'Введите сообщение...',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(25)),
-                  borderSide: BorderSide.none,
+                  borderSide: BorderSide(color: Colors.black, width: 1.5),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(25)),
+                  borderSide: BorderSide(color: Colors.black, width: 1.5),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(25)),
+                  borderSide: BorderSide(color: AppTheme.accentColor, width: 1.5),
                 ),
                 filled: true,
                 fillColor: AppTheme.primaryColor,
@@ -325,22 +373,16 @@ class _ChatScreenState extends State<ChatScreen> {
     final messageText = _messageController.text;
     _messageController.clear(); // Очищаем ввод сразу
     
-    // Показываем индикатор отправки
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Отправка сообщения...'),
-        duration: Duration(seconds: 1),
-      ),
-    );
+    // Скроллим вниз после отправки сообщения
+    _scrollToBottom();
     
     try {
       // Асинхронно отправляем сообщение
       chatProvider.sendMessage(messageText).then((_) {
-        // Успешная отправка
-        ScaffoldMessenger.of(context).clearSnackBars();
+        // Успешная отправка - скроллим вниз еще раз после получения подтверждения
+        _scrollToBottom();
       }).catchError((e) {
         // Ошибка отправки
-        ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Ошибка при отправке сообщения: $e'),
@@ -353,7 +395,6 @@ class _ChatScreenState extends State<ChatScreen> {
         );
       });
     } catch (e) {
-      ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Ошибка при отправке сообщения: $e'),
@@ -372,10 +413,13 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
       );
       
+      // Скроллим вниз после отправки сообщения
+      _scrollToBottom();
+      
       chatProvider.sendMessage(messageText).then((_) {
-        ScaffoldMessenger.of(context).clearSnackBars();
+        // Успешная отправка - скроллим вниз еще раз
+        _scrollToBottom();
       }).catchError((e) {
-        ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Повторная ошибка: $e'),
@@ -384,7 +428,6 @@ class _ChatScreenState extends State<ChatScreen> {
         );
       });
     } catch (e) {
-      ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Ошибка при повторной отправке: $e'),

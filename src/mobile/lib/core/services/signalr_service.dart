@@ -205,10 +205,12 @@ class SignalRService {
     if (_isDisposed) return;
     
     try {
-      debugPrint('Получено сообщение: $arguments');
+      debugPrint('SignalRService: получено сообщение от сервера: $arguments');
       if (arguments != null && arguments.isNotEmpty && arguments[0] is Map<String, dynamic>) {
-        final message = ChatMessage.fromMap(arguments[0] as Map<String, dynamic>);
-        debugPrint('Обработано сообщение: ${message.content}');
+        final messageData = arguments[0] as Map<String, dynamic>;
+        final message = ChatMessage.fromMap(messageData);
+        
+        debugPrint('SignalRService: обработано сообщение: ID=${message.id}, контент=${message.content}, от=${message.senderId}');
         _messageReceivedController.add(message);
       }
     } catch (e, stackTrace) {

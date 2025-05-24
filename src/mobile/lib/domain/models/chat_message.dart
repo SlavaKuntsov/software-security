@@ -54,4 +54,44 @@ class ChatMessage {
       isRead: isRead ?? this.isRead,
     );
   }
+
+  // Проверка, является ли сообщение локально созданным
+  bool get isLocalMessage => id.contains('_local');
+
+  // Метод для определения, является ли сообщение фактически тем же самым сообщением
+  // что и другое (для предотвращения дублирования)
+  bool isSameMessageAs(ChatMessage other) {
+    // Если ID полностью совпадают - это точно одно и то же сообщение
+    if (id == other.id) return true;
+    
+    // Если одно из сообщений локальное, а другие параметры совпадают
+    if ((isLocalMessage || other.isLocalMessage) && 
+        senderId == other.senderId && 
+        receiverId == other.receiverId &&
+        content == other.content) {
+      // Проверяем временные метки - они должны быть очень близкими
+      final timeDiff = timestamp.difference(other.timestamp).inMilliseconds.abs();
+      return timeDiff < 15000; // 15 секунд максимальная разница
+    }
+    
+    // Дополнительная проверка для случаев, когда могут быть проблемы с ID
+    // но все остальные параметры совпадают точно
+    if (senderId == other.senderId &&
+        receiverId == other.receiverId &&
+        content == other.content &&
+        timestamp.difference(other.timestamp).inSeconds.abs() < 3) {
+      return true;
+    }
+    
+    return false;
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is ChatMessage && isSameMessageAs(other);
+  }
+
+  @override
+  int get hashCode => id.hashCode;
 } 

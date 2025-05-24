@@ -29,14 +29,56 @@ class ChatService {
 
   Future<void> initialize(String userId) async {
     _currentUserId = userId;
-      debugPrint('ChatService: initialize пользователя $userId');
+    debugPrint('ChatService: initialize пользователя $userId');
     await _signalRService.startChatConnection(userId);
     
     // Listen to new messages from SignalR
     _signalRService.messageReceivedStream.listen((message) {
       if (_currentChatPartnerId != null && 
           (message.senderId == _currentChatPartnerId || message.receiverId == _currentChatPartnerId)) {
-        _currentMessages.add(message);
+        
+        debugPrint('ChatService: получено сообщение: ID=${message.id}, контент=${message.content}, от=${message.senderId}');
+        
+        // Проверяем наличие дубликата с использованием нового метода
+        final duplicateIndex = _findDuplicateMessageIndex(message);
+        
+        if (duplicateIndex >= 0) {
+          // Если сообщение является дубликатом локального, заменяем его
+          debugPrint('ChatService: заменяем сообщение на серверное: ${_currentMessages[duplicateIndex].id} -> ${message.id}');
+          
+          // Если заменяемое сообщение локальное, но имеет другой контент, 
+          // то это может быть другое сообщение - добавляем новое
+          if (_currentMessages[duplicateIndex].isLocalMessage && 
+              _currentMessages[duplicateIndex].content != message.content) {
+            debugPrint('ChatService: сообщения отличаются по содержанию, добавляем новое');
+            _currentMessages.add(message);
+          } else {
+            // Просто заменяем локальное сообщение на серверное
+            _currentMessages[duplicateIndex] = message;
+          }
+        } else {
+          // Перед добавлением выполняем дополнительную проверку
+          // Если есть очень похожее сообщение (но не определенное как дубликат),
+          // то выводим предупреждение
+          final similarIndex = _findSimilarMessageIndex(message);
+          if (similarIndex >= 0) {
+            debugPrint('ПРЕДУПРЕЖДЕНИЕ: Найдено похожее сообщение, но не определено как дубликат:');
+            debugPrint('  Существующее: id=${_currentMessages[similarIndex].id}, контент=${_currentMessages[similarIndex].content}');
+            debugPrint('  Новое: id=${message.id}, контент=${message.content}');
+          }
+          
+          // Если это новое сообщение, добавляем его
+          debugPrint('ChatService: добавляем новое сообщение: ${message.id}');
+          _currentMessages.add(message);
+        }
+        
+        // Убираем возможные точные дубликаты (с одинаковым ID)
+        _removeDuplicatesById();
+        
+        // Сортируем сообщения по времени для правильного отображения
+        _currentMessages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+        
+        // Отправляем обновленный список
         _chatMessagesController.add(_currentMessages);
         
         // Mark messages as read if we are the receiver
@@ -86,37 +128,58 @@ class ChatService {
       // Проверяем соединение перед отправкой и пытаемся переподключиться если нужно
       await _ensureConnection();
       
+      // Создаем уникальную временную метку для отслеживания сообщения
+      final now = DateTime.now();
+      final localMessageId = '${now.millisecondsSinceEpoch}_local';
+      
       // Добавляем локальную версию сообщения для немедленного отображения в UI
       final tempMessage = ChatMessage(
-        id: DateTime.now().millisecondsSinceEpoch.toString(), // временный ID
+        id: localMessageId, // уникальный временный ID
         senderId: _currentUserId ?? '',
         receiverId: receiverId,
         content: content,
-        timestamp: DateTime.now(),
+        timestamp: now,
         isRead: false,
       );
       
-      // Добавляем сообщение в локальный список для мгновенного отображения
+      debugPrint('ChatService: создано локальное сообщение с ID: $localMessageId');
+      
+      // Проверяем, нет ли уже такого сообщения (для защиты от дублирования)
       if (_currentChatPartnerId == receiverId) {
-        _currentMessages.add(tempMessage);
-        _chatMessagesController.add(_currentMessages);
+        final duplicateIndex = _findDuplicateMessageIndex(tempMessage);
+        if (duplicateIndex < 0) {
+          // Добавляем сообщение только если его еще нет
+          _currentMessages.add(tempMessage);
+          
+          // Сортируем сообщения по времени
+          _currentMessages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+          
+          _chatMessagesController.add(_currentMessages);
+        } else {
+          debugPrint('ChatService: предотвращение дублирования - похожее сообщение уже существует');
+        }
       }
       
       // Отправляем сообщение на сервер
       await _signalRService.sendMessage(receiverId, content);
-      debugPrint('ChatService: сообщение успешно отправлено');
+      debugPrint('ChatService: сообщение успешно отправлено на сервер');
     } catch (e) {
       debugPrint('ChatService: ошибка при отправке сообщения - $e');
       
       // Удаляем временное сообщение, если оно было добавлено
       if (_currentChatPartnerId == receiverId) {
-        _currentMessages = _currentMessages.where(
-          (m) => !(m.senderId == _currentUserId && 
-                  m.receiverId == receiverId && 
-                  m.content == content &&
-                  m.timestamp.difference(DateTime.now()).inSeconds.abs() < 5)
-        ).toList();
-        _chatMessagesController.add(_currentMessages);
+        // Находим сообщение по содержимому и ID
+        final msgIndex = _currentMessages.indexWhere(
+          (m) => m.id.contains('_local') && 
+                m.senderId == _currentUserId && 
+                m.receiverId == receiverId && 
+                m.content == content
+        );
+        
+        if (msgIndex >= 0) {
+          _currentMessages.removeAt(msgIndex);
+          _chatMessagesController.add(_currentMessages);
+        }
       }
       
       throw Exception('Не удалось отправить сообщение: $e');
@@ -182,5 +245,40 @@ class ChatService {
   void dispose() {
     _chatMessagesController.close();
     _signalRService.stopConnection();
+  }
+
+  // Метод для поиска дубликатов сообщений
+  int _findDuplicateMessageIndex(ChatMessage message) {
+    for (int i = 0; i < _currentMessages.length; i++) {
+      if (_currentMessages[i].isSameMessageAs(message)) {
+        return i;
+      }
+    }
+    return -1;
+  }
+  
+  // Метод для поиска похожих сообщений (для диагностики)
+  int _findSimilarMessageIndex(ChatMessage message) {
+    for (int i = 0; i < _currentMessages.length; i++) {
+      if (_currentMessages[i].senderId == message.senderId &&
+          _currentMessages[i].receiverId == message.receiverId &&
+          _currentMessages[i].content == message.content) {
+        return i;
+      }
+    }
+    return -1;
+  }
+  
+  // Удаление точных дубликатов по ID
+  void _removeDuplicatesById() {
+    final uniqueIds = <String>{};
+    _currentMessages = _currentMessages.where((message) {
+      if (uniqueIds.contains(message.id)) {
+        debugPrint('ChatService: Удаляем точный дубликат с ID: ${message.id}');
+        return false; // Удаляем дубликат
+      }
+      uniqueIds.add(message.id);
+      return true; // Оставляем уникальное сообщение
+    }).toList();
   }
 } 
