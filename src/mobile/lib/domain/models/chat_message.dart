@@ -64,22 +64,12 @@ class ChatMessage {
     // Если ID полностью совпадают - это точно одно и то же сообщение
     if (id == other.id) return true;
     
-    // Если одно из сообщений локальное, а другие параметры совпадают
+    // Если одно из сообщений локальное, а контент и временные метки похожи
     if ((isLocalMessage || other.isLocalMessage) && 
         senderId == other.senderId && 
         receiverId == other.receiverId &&
-        content == other.content) {
-      // Проверяем временные метки - они должны быть очень близкими
-      final timeDiff = timestamp.difference(other.timestamp).inMilliseconds.abs();
-      return timeDiff < 15000; // 15 секунд максимальная разница
-    }
-    
-    // Дополнительная проверка для случаев, когда могут быть проблемы с ID
-    // но все остальные параметры совпадают точно
-    if (senderId == other.senderId &&
-        receiverId == other.receiverId &&
         content == other.content &&
-        timestamp.difference(other.timestamp).inSeconds.abs() < 3) {
+        (timestamp.difference(other.timestamp).inSeconds.abs() < 10)) {
       return true;
     }
     

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../../config/theme.dart';
-import '../providers/auth_provider.dart';
 import 'contacts_screen.dart';
 import 'profile_screen.dart';
 import 'recent_chats_screen.dart';
@@ -34,8 +32,8 @@ class _NavigationScreenState extends State<NavigationScreen> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> pages = [
-      const ContactsScreen(),
       const RecentChatsScreen(),
+      const ContactsScreen(),
       const ProfileScreen(),
     ];
 
@@ -47,14 +45,14 @@ class _NavigationScreenState extends State<NavigationScreen> {
 
   Widget _buildFloatingNavBar() {
     final List<IconData> icons = [
-      Icons.contacts,
       Icons.chat,
+      Icons.contacts,
       Icons.person_rounded,
     ];
 
     final List<String> labels = [
-      'Контакты',
       'Чат',
+      'Контакты',
       'Профиль',
     ];
 
