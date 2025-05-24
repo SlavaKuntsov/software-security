@@ -38,44 +38,80 @@ class ChatProvider extends ChangeNotifier {
   // This method should be called explicitly after provider is created
   Future<void> initialize() async {
     // Prevent multiple initialization attempts
-    if (_isInitialized || _isInitializing) return;
+    if (_isInitialized || _isInitializing) {
+      debugPrint('ChatProvider: уже инициализирован или инициализируется');
+      return;
+    }
     
+    debugPrint('ChatProvider: начало инициализации');
     _isInitializing = true;
+    _status = ChatStatus.loading;
+    
+    // Используем scheduleMicrotask для безопасного вызова notifyListeners
+    Future.microtask(() => notifyListeners());
     
     try {
-      if (_authProvider.authStatus == AuthStatus.authenticated && _authProvider.currentUser != null) {
-        final userId = _authProvider.currentUser!.id;
+      // Проверяем состояние и получаем пользователя в AuthProvider
+      debugPrint('ChatProvider AuthStatus: ${_authProvider.authStatus}');
+      
+      // Проверяем, аутентифицирован ли пользователь
+      // if (_authProvider.authStatus != AuthStatus.authenticated) {
+      //   debugPrint('ChatProvider: пользователь не аутентифицирован');
+      //   _error = 'Пользователь не аутентифицирован';
+      //   _status = ChatStatus.error;
+      //   return;
+      // }
+      
+      // Получаем пользователя через новый метод
+      final currentUser = await _authProvider.getCurrentUser();
+      debugPrint('ChatProvider: получен пользователь из AuthProvider: $currentUser');
+      
+      // Если пользователь всё еще null после попытки получить его
+      if (currentUser == null) {
+        debugPrint('ChatProvider: не удалось получить пользователя после запроса');
+        _error = 'Не удалось получить данные пользователя';
+        _status = ChatStatus.error;
+        return;
+      }
+      
+      // Теперь у нас точно есть currentUser
+      final userId = currentUser.id;
+      debugPrint('ChatProvider: инициализация для пользователя $userId');
+      
+      try {
         await _chatService.initialize(userId);
+        debugPrint('ChatProvider: инициализация чат-сервиса успешна');
         
-        // Listen to new messages
-        _chatService.chatMessagesStream.listen((messages) {
-          _messages = messages;
-          notifyListeners();
-        });
-        
-        // Setup read markers listener
-        _chatService.messagesReadStream.listen((_) {
-          // Just trigger refresh when messages are read
-          notifyListeners();
-        });
+        // Безопасно настраиваем слушателей
+        _setupListeners();
         
         // Update unread count
         await refreshUnreadCount();
         
         _isInitialized = true;
-        notifyListeners();
+        _status = ChatStatus.success;
+        debugPrint('ChatProvider: инициализация завершена успешно');
+      } catch (e) {
+        debugPrint('ChatProvider: ошибка инициализации чат-сервиса: $e');
+        _error = 'Ошибка подключения к серверу: $e';
+        _status = ChatStatus.error;
       }
     } catch (e) {
-      debugPrint('Error during chat initialization: $e');
+      debugPrint('ChatProvider: ошибка инициализации: $e');
+      _error = e.toString();
+      _status = ChatStatus.error;
     } finally {
       _isInitializing = false;
+      // Используем scheduleMicrotask для безопасного вызова notifyListeners
+      Future.microtask(() => notifyListeners());
     }
   }
 
   Future<void> loadUsers() async {
     try {
       _status = ChatStatus.loading;
-      notifyListeners();
+      // Безопасный вызов notifyListeners
+      Future.microtask(() => notifyListeners());
       
       _users = await _chatService.getUsers();
       
@@ -85,7 +121,8 @@ class ChatProvider extends ChangeNotifier {
       _error = e.toString();
       debugPrint('Error loading users: $e');
     } finally {
-      notifyListeners();
+      // Безопасный вызов notifyListeners
+      Future.microtask(() => notifyListeners());
     }
   }
 
@@ -93,7 +130,8 @@ class ChatProvider extends ChangeNotifier {
     try {
       _currentChatPartnerId = userId;
       _status = ChatStatus.loading;
-      notifyListeners();
+      // Безопасный вызов notifyListeners
+      Future.microtask(() => notifyListeners());
       
       await _chatService.getChatHistory(userId);
       
@@ -103,19 +141,39 @@ class ChatProvider extends ChangeNotifier {
       _error = e.toString();
       debugPrint('Error loading chat history: $e');
     } finally {
-      notifyListeners();
+      // Безопасный вызов notifyListeners
+      Future.microtask(() => notifyListeners());
     }
   }
 
   Future<void> sendMessage(String content) async {
-    if (_currentChatPartnerId == null) return;
+    if (_currentChatPartnerId == null) {
+      debugPrint('ChatProvider: нельзя отправить сообщение - не выбран получатель');
+      return;
+    }
     
     try {
+      // Проверка инициализации и повторная попытка если нужно
+      if (!_isInitialized) {
+        debugPrint('ChatProvider: попытка инициализации перед отправкой сообщения');
+        await initialize();
+        
+        // Проверяем результат инициализации
+        if (!_isInitialized) {
+          throw Exception('Не удалось инициализировать чат');
+        }
+      }
+      
+      debugPrint('ChatProvider: отправка сообщения...');
       await _chatService.sendMessage(_currentChatPartnerId!, content);
+      debugPrint('ChatProvider: сообщение отправлено успешно');
     } catch (e) {
+      debugPrint('ChatProvider: ошибка при отправке сообщения: $e');
       _error = e.toString();
-      debugPrint('Error sending message: $e');
-      notifyListeners();
+      _status = ChatStatus.error;
+      // Безопасный вызов notifyListeners
+      Future.microtask(() => notifyListeners());
+      throw Exception('Ошибка при отправке сообщения: $e');
     }
   }
 
@@ -133,7 +191,8 @@ class ChatProvider extends ChangeNotifier {
   Future<void> refreshUnreadCount() async {
     try {
       _unreadCount = await _chatService.getUnreadCount();
-      notifyListeners();
+      // Безопасный вызов notifyListeners
+      Future.microtask(() => notifyListeners());
     } catch (e) {
       debugPrint('Error refreshing unread count: $e');
     }
@@ -163,5 +222,21 @@ class ChatProvider extends ChangeNotifier {
       _chatService.dispose();
     }
     super.dispose();
+  }
+
+  // Выносим настройку слушателей в отдельный метод
+  void _setupListeners() {
+    // Listen to new messages - используем безопасное обновление
+    _chatService.chatMessagesStream.listen((messages) {
+      _messages = messages;
+      // Безопасно обновляем UI
+      Future.microtask(() => notifyListeners());
+    });
+    
+    // Setup read markers listener - используем безопасное обновление
+    _chatService.messagesReadStream.listen((_) {
+      // Just trigger refresh when messages are read
+      Future.microtask(() => notifyListeners());
+    });
   }
 } 

@@ -559,4 +559,43 @@ class AuthProvider extends ChangeNotifier {
       _authStatus = AuthStatus.unauthenticated;
     }
   }
+
+  // Получение текущего пользователя или загрузка данных, если пользователь равен null
+  Future<User?> getCurrentUser() async {
+    debugPrint('AuthProvider.getCurrentUser вызван, текущий пользователь: $_currentUser');
+    
+    // Если пользователь уже есть, возвращаем его
+    if (_currentUser != null) {
+      return _currentUser;
+    }
+    
+    // Проверяем статус аутентификации
+    // if (_authStatus != AuthStatus.authenticated) {
+    //   debugPrint('AuthProvider: пользователь не аутентифицирован');
+    //   return null;
+    // }
+    
+    // Пытаемся получить данные пользователя с сервера
+    try {
+      debugPrint('AuthProvider: попытка получить данные пользователя с сервера');
+      final apiClient = sl<ApiClient>();
+      final response = await apiClient.get(ApiConstants.authorize);
+      
+      if (response != null) {
+        debugPrint('AuthProvider: получен ответ от сервера: $response');
+        try {
+          _currentUser = User.fromJson(response);
+          notifyListeners();
+          debugPrint('AuthProvider: пользователь успешно получен: ${_currentUser?.firstName}');
+          return _currentUser;
+        } catch (e) {
+          debugPrint('AuthProvider: ошибка при создании объекта пользователя: $e');
+        }
+      }
+    } catch (e) {
+      debugPrint('AuthProvider: ошибка при запросе данных пользователя: $e');
+    }
+    
+    return null;
+  }
 }

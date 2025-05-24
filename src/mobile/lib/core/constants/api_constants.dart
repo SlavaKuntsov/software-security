@@ -4,10 +4,11 @@ class ApiConstants {
   // Base URL for all services
   static String get baseUrl => EnvironmentConfig.baseUrl;
   
-  // Base URL без /api/v1 для SignalR хабов
+  // URL для WebSocket подключений
+  static String get wsBaseUrl => EnvironmentConfig.wsUrl;
   
   // SignalR хабы
-  static String get chatHub => '$baseUrl/chatHub';
+  static String get chatHub => '$wsBaseUrl/chatHub';
 
   // User Service Endpoints
   static String get userServicePath => '$baseUrl/users';

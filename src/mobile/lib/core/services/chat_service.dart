@@ -29,6 +29,7 @@ class ChatService {
 
   Future<void> initialize(String userId) async {
     _currentUserId = userId;
+      debugPrint('ChatService: initialize пользователя $userId');
     await _signalRService.startChatConnection(userId);
     
     // Listen to new messages from SignalR
@@ -77,6 +78,14 @@ class ChatService {
     try {
       debugPrint('ChatService: отправка сообщения пользователю $receiverId');
       
+      // Проверяем, что SignalR соединение инициализировано
+      if (_currentUserId == null) {
+        throw Exception('Сервис чата не инициализирован. Отсутствует ID пользователя.');
+      }
+      
+      // Проверяем соединение перед отправкой и пытаемся переподключиться если нужно
+      await _ensureConnection();
+      
       // Добавляем локальную версию сообщения для немедленного отображения в UI
       final tempMessage = ChatMessage(
         id: DateTime.now().millisecondsSinceEpoch.toString(), // временный ID
@@ -111,6 +120,33 @@ class ChatService {
       }
       
       throw Exception('Не удалось отправить сообщение: $e');
+    }
+  }
+
+  // Добавляем метод для проверки соединения
+  Future<void> _ensureConnection() async {
+    try {
+      if (_currentUserId == null) {
+        throw Exception('Отсутствует ID пользователя');
+      }
+      
+      // Проверяем текущее состояние соединения в SignalRService
+      // и пытаемся переподключиться, если соединение отсутствует
+      if (!await _signalRService.isConnected()) {
+        debugPrint('ChatService: Соединение отсутствует, пробуем переподключиться');
+        await _signalRService.startChatConnection(_currentUserId!);
+        
+        // Дополнительная задержка для стабильности
+        await Future.delayed(Duration(milliseconds: 500));
+        
+        if (!await _signalRService.isConnected()) {
+          throw Exception('Не удалось установить соединение с сервером');
+        }
+        debugPrint('ChatService: Соединение успешно восстановлено');
+      }
+    } catch (e) {
+      debugPrint('ChatService: Ошибка при проверке соединения - $e');
+      throw Exception('Проблема с подключением к серверу: $e');
     }
   }
 

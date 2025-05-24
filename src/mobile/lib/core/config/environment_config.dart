@@ -2,7 +2,8 @@ enum Environment { dev, prod }
 
 class EnvironmentConfig {
   static Environment _environment = Environment.dev;
-  static String ipAddress = "192.168.0.103";
+  static String ipAddress = "192.168.84.232";
+  static int port = 5001;
 
   static void setEnvironment(Environment env) {
     _environment = env;
@@ -23,9 +24,20 @@ class EnvironmentConfig {
   static String get baseUrl {
     switch (_environment) {
       case Environment.dev:
-        return 'http://$ipAddress:5000/api/v1';
+        return 'https://$ipAddress:$port/api/v1';
       case Environment.prod:
-        return 'https://$ipAddress:5001/api/v1';
+        return 'https://$ipAddress:$port/api/v1';
+    }
+  }
+  
+  // URL для WebSocket подключений SignalR
+  static String get wsUrl {
+    switch (_environment) {
+      case Environment.dev:
+        // В WSS протоколе нужно указывать полный URL
+        return 'wss://$ipAddress:$port/api/v1';
+      case Environment.prod:
+        return 'wss://$ipAddress:$port/api/v1';
     }
   }
   

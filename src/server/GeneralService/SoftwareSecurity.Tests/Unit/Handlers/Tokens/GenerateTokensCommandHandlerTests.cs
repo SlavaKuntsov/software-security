@@ -128,5 +128,4 @@ public class GenerateTokensCommandHandlerTests
 
 		_contextMock.Verify(ctx => ctx.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
 	}
-
 }

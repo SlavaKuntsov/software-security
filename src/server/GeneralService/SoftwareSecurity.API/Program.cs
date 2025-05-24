@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.HttpOverrides;
 using Serilog;
 using SoftwareSecurity.API.Extensions;
+using SoftwareSecurity.API.Hubs;
 using SoftwareSecurity.Application.Extensions;
 using SoftwareSecurity.Infrastructure.Extensions;
 using SoftwareSecurity.Persistence.Extensions;
@@ -76,6 +77,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-// app.MapHub<ChatHub>("/api/v1/chatHub");
+app.MapHub<ChatHub>("/api/v1/chatHub");
 
 app.Run();

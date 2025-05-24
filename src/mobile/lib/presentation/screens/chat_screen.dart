@@ -30,7 +30,9 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
     // Безопасная инициализация с задержкой для избежания ошибок построения
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initChat();
+      if (mounted) {
+        _initChat();
+      }
     });
   }
   
@@ -44,18 +46,39 @@ class _ChatScreenState extends State<ChatScreen> {
     });
     
     try {
+      debugPrint('ChatScreen: начало инициализации чата');
+      
+      // Получаем провайдер без подписки
       _chatProvider = Provider.of<ChatProvider>(context, listen: false);
       
-      // Check if provider is initialized
+      // Check if provider is initialized - используем await Future.microtask
+      // для избежания setState во время построения
+      await Future.microtask(() {});
+      
       if (!_chatProvider!.isInitialized) {
+        debugPrint('ChatScreen: инициализация провайдера чата');
         await _chatProvider!.initialize();
+        
+        // Проверяем, была ли успешной инициализация
+        if (!_chatProvider!.isInitialized) {
+          throw Exception('Не удалось инициализировать чат: ${_chatProvider!.error}');
+        }
+        debugPrint('ChatScreen: инициализация провайдера завершена успешно');
+      } else {
+        debugPrint('ChatScreen: провайдер чата уже инициализирован');
       }
       
+      debugPrint('ChatScreen: загрузка истории сообщений для ${widget.chatPartnerId}');
       await _chatProvider!.loadChatHistory(widget.chatPartnerId);
+      debugPrint('ChatScreen: история сообщений загружена успешно');
+      
       if (mounted) {
+        debugPrint('ChatScreen: отмечаем сообщения как прочитанные');
         await _chatProvider!.markMessagesAsRead();
+        debugPrint('ChatScreen: сообщения отмечены как прочитанные');
       }
     } catch (e) {
+      debugPrint('ChatScreen: ошибка при инициализации чата - $e');
       if (mounted) {
         setState(() {
           _error = e.toString();
