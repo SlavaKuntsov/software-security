@@ -217,13 +217,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
 
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text('Профиль'),
-      //   backgroundColor: AppTheme.primaryColor,
-      // ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(
-          top: 48,
+          top: 64,
           right: 16,
           left: 16,
           bottom: 16,

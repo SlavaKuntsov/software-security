@@ -1,0 +1,54 @@
+# Необходимые файлы для приложения с 3 основными экранами и авторизацией
+
+# Основные файлы
+lib/main.dart
+lib/config/theme.dart
+
+# Конфигурация и сеть
+lib/core/config/environment_config.dart
+lib/core/config/google_services_config.dart
+lib/core/network/certificate_loader.dart
+lib/core/network/secure_http_client.dart
+lib/core/network/api_client.dart
+lib/core/network/network_info.dart
+
+# Константы
+lib/core/constants/app_constants.dart
+lib/core/constants/api_constants.dart
+lib/core/constants/oauth_constants.dart
+
+# Экраны
+lib/presentation/screens/navigation_screen.dart
+lib/presentation/screens/profile_screen.dart
+lib/presentation/screens/contacts_screen.dart
+lib/presentation/screens/chat_screen.dart
+lib/presentation/screens/splash_screen.dart
+lib/presentation/screens/auth/login_screen.dart
+lib/presentation/screens/auth/register_screen.dart
+
+# Провайдеры
+lib/presentation/providers/auth_provider.dart
+lib/presentation/providers/theme_provider.dart
+
+# Аутентификация
+lib/domain/usecases/auth/login.dart
+lib/domain/usecases/auth/registration.dart
+lib/domain/usecases/auth/google_sign_in.dart
+lib/domain/repositories/auth_repository.dart
+lib/data/repositories/auth_repository_impl.dart
+lib/data/datasources/auth/auth_remote_data_source.dart
+lib/data/datasources/auth/google_auth_service.dart
+
+# Модели и сущности для аутентификации
+lib/domain/entities/auth/user.dart
+lib/domain/entities/auth/token.dart
+lib/data/models/auth/user_model.dart
+lib/data/models/auth/token_model.dart
+lib/data/models/auth/access_token_model.dart
+
+# Dependency Injection
+lib/di/injection_container.dart
+
+# Ошибки и исключения
+lib/core/errors/exceptions.dart
+lib/core/errors/failures.dart 
