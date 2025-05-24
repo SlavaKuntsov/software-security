@@ -59,6 +59,20 @@ class AuthProvider extends ChangeNotifier {
 
     if (response != null) {
       _currentUser = User.fromJson(response);
+      notifyListeners();
+    }
+  }
+
+  Future<void> checkUserSilently() async {
+    try {
+      final apiClient = sl<ApiClient>();
+      final response = await apiClient.get(ApiConstants.authorize);
+      
+      if (response != null) {
+        _currentUser = User.fromJson(response);
+      }
+    } catch (e) {
+      debugPrint('Ошибка при проверке пользователя: $e');
     }
   }
 
@@ -221,7 +235,7 @@ class AuthProvider extends ChangeNotifier {
 
         // Модель AccessTokenModel не содержит данных пользователя
         // Загрузим данные пользователя через отдельный запрос
-        checkAuthStatus();
+        checkAuthStatusSilently();
 
         notifyListeners();
         return true;
@@ -275,7 +289,7 @@ class AuthProvider extends ChangeNotifier {
         // );
 
         // Загрузим полные данные пользователя
-        checkAuthStatus();
+        checkAuthStatusSilently();
 
         notifyListeners();
         return true;
@@ -316,7 +330,7 @@ class AuthProvider extends ChangeNotifier {
           _loadGoogleUserData();
 
           // Также загрузим данные пользователя с сервера
-          checkAuthStatus();
+          checkAuthStatusSilently();
 
           notifyListeners();
           return true;
@@ -493,5 +507,56 @@ class AuthProvider extends ChangeNotifier {
         return true;
       },
     );
+  }
+
+  // Метод без notifyListeners для безопасного использования в build
+  Future<void> checkAuthStatusSilently() async {
+    try {
+      // Получаем SharedPreferences для проверки наличия токенов
+      final prefs = sl<SharedPreferences>();
+      final accessToken = prefs.getString('access_token');
+      final refreshToken = prefs.getString('refresh_token');
+
+      _token = accessToken;
+
+      // Если нет токенов, то пользователь не авторизован
+      if (accessToken == null ||
+          accessToken.isEmpty ||
+          refreshToken == null ||
+          refreshToken.isEmpty) {
+        _authStatus = AuthStatus.unauthenticated;
+        return;
+      }
+
+      // Есть токены, проверяем их валидность через API
+      final apiClient = sl<ApiClient>();
+
+      try {
+        // Отправляем запрос на авторизацию
+        final response = await apiClient.get(ApiConstants.authorize);
+
+        // Обрабатываем ответ
+        if (response != null) {
+          _authStatus = AuthStatus.authenticated;
+          
+          // Пробуем извлечь данные пользователя
+          try {
+            if (response is Map<String, dynamic> && response.containsKey('email')) {
+              _currentUser = User.fromJson(response);
+            }
+          } catch (e) {
+            debugPrint('Ошибка при обработке данных пользователя: $e');
+          }
+        } else {
+          _authStatus = AuthStatus.authenticated;
+        }
+      } catch (e) {
+        debugPrint('Ошибка при проверке токена: $e');
+        _authStatus = AuthStatus.unauthenticated;
+      }
+    } catch (e) {
+      debugPrint('Общая ошибка при проверке статуса авторизации: $e');
+      _authStatus = AuthStatus.unauthenticated;
+    }
   }
 }

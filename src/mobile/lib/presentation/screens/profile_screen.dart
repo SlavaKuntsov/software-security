@@ -46,15 +46,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   void _initFields() {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    authProvider.checkUser();
-    final user = authProvider.currentUser;
-
-    if (user != null) {
-      _emailController.text = user.email;
-      _firstNameController.text = user.firstName;
-      _lastNameController.text = user.lastName;
-      _dateOfBirthController.text = user.dateOfBirth;
-    }
+    
+    // Используем checkUserSilently, который не вызывает notifyListeners
+    authProvider.checkUserSilently().then((_) {
+      if (mounted) {
+        // После получения данных пользователя заполняем поля
+        setState(() {
+          final user = authProvider.currentUser;
+          if (user != null) {
+            _emailController.text = user.email;
+            _firstNameController.text = user.firstName;
+            _lastNameController.text = user.lastName;
+            _dateOfBirthController.text = user.dateOfBirth;
+          }
+        });
+      }
+    });
   }
 
   void _saveProfile() async {

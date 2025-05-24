@@ -23,7 +23,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
     if (mounted) {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      await authProvider.checkAuthStatus();
+      await authProvider.checkAuthStatusSilently();
 
       if (authProvider.authStatus == AuthStatus.authenticated) {
         Navigator.of(context).pushReplacementNamed('/home');
