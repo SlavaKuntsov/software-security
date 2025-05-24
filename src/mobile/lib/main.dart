@@ -8,6 +8,7 @@ import 'core/network/secure_http_client.dart';
 import 'di/injection_container.dart' as di;
 import 'domain/entities/custom_notification.dart';
 import 'presentation/providers/auth_provider.dart';
+import 'presentation/providers/chat_provider.dart';
 import 'presentation/providers/theme_provider.dart';
 import 'presentation/screens/auth/login_screen.dart';
 import 'presentation/screens/auth/register_screen.dart';
@@ -30,6 +31,7 @@ void main() async {
   GoogleServicesConfig.createGoogleSignIn();
 
   final authProvider = di.sl<AuthProvider>();
+  final chatProvider = di.sl<ChatProvider>();
 
   runApp(
     MultiProvider(
@@ -48,6 +50,24 @@ void main() async {
               }
             });
             return authProvider;
+          },
+        ),
+        ChangeNotifierProvider(
+          create: (_) {
+            // Delay initialization until after provider is created and user is authenticated
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (authProvider.authStatus == AuthStatus.authenticated) {
+                chatProvider.initialize();
+              }
+              
+              // Listen for authentication status changes to initialize chat when user logs in
+              authProvider.addListener(() {
+                if (authProvider.authStatus == AuthStatus.authenticated) {
+                  chatProvider.initialize();
+                }
+              });
+            });
+            return chatProvider;
           },
         ),
       ],

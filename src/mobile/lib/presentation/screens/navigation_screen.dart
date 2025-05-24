@@ -3,9 +3,9 @@ import 'package:provider/provider.dart';
 
 import '../../config/theme.dart';
 import '../providers/auth_provider.dart';
-import 'chat_screen.dart';
 import 'contacts_screen.dart';
 import 'profile_screen.dart';
+import 'recent_chats_screen.dart';
 
 class NavigationScreen extends StatefulWidget {
   final int initialIndex;
@@ -35,7 +35,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
   Widget build(BuildContext context) {
     final List<Widget> pages = [
       const ContactsScreen(),
-      const ChatScreen(),
+      const RecentChatsScreen(),
       const ProfileScreen(),
     ];
 

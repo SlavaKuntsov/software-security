@@ -6,23 +6,24 @@ import '../../domain/models/chat_user.dart';
 import '../providers/chat_provider.dart';
 import 'chat_screen.dart';
 
-class ContactsScreen extends StatefulWidget {
-  const ContactsScreen({super.key});
+class RecentChatsScreen extends StatefulWidget {
+  const RecentChatsScreen({super.key});
 
   @override
-  State<ContactsScreen> createState() => _ContactsScreenState();
+  State<RecentChatsScreen> createState() => _RecentChatsScreenState();
 }
 
-class _ContactsScreenState extends State<ContactsScreen> {
+class _RecentChatsScreenState extends State<RecentChatsScreen> {
   bool _isLoading = false;
   
   @override
   void initState() {
     super.initState();
-    // Safely load users
+    // Безопасная загрузка пользователей
     _safeLoadUsers();
   }
   
+  // Безопасная загрузка пользователей с проверкой mounted
   Future<void> _safeLoadUsers() async {
     if (!mounted) return;
     
@@ -31,6 +32,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
     });
     
     try {
+      // Безопасно получаем провайдер
       final chatProvider = Provider.of<ChatProvider>(context, listen: false);
       
       // Check if provider is initialized
@@ -54,12 +56,12 @@ class _ContactsScreenState extends State<ContactsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Контакты'),
+        title: const Text('Сообщения'),
         backgroundColor: AppTheme.primaryColor,
       ),
       body: Consumer<ChatProvider>(
         builder: (context, chatProvider, _) {
-          // Local loading state takes priority
+          // Локальное состояние загрузки приоритетнее
           if (_isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -73,7 +75,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Ошибка: ${chatProvider.error}'),
+                  Text('Ошибка: ${chatProvider.error ?? "Не удалось загрузить данные"}'),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: _safeLoadUsers,
@@ -84,16 +86,22 @@ class _ContactsScreenState extends State<ContactsScreen> {
             );
           }
           
-          if (chatProvider.users.isEmpty) {
+          // Безопасная проверка на пустой список
+          final usersList = chatProvider.users;
+          if (usersList.isEmpty) {
             return const Center(child: Text('Нет доступных пользователей'));
           }
           
           return ListView.builder(
             padding: const EdgeInsets.all(16),
-            itemCount: chatProvider.users.length,
+            itemCount: usersList.length,
             itemBuilder: (context, index) {
-              final user = chatProvider.users[index];
-              return _buildContactItem(context, user);
+              if (index >= usersList.length) {
+                // Защита от IndexOutOfBounds
+                return const SizedBox.shrink();
+              }
+              final user = usersList[index];
+              return _buildChatItem(context, user, chatProvider);
             },
           );
         },
@@ -101,7 +109,11 @@ class _ContactsScreenState extends State<ContactsScreen> {
     );
   }
 
-  Widget _buildContactItem(BuildContext context, ChatUser user) {
+  Widget _buildChatItem(BuildContext context, ChatUser user, ChatProvider chatProvider) {
+    // Проверка на null и пустые строки для безопасности
+    final initials = user.initials.isNotEmpty ? user.initials : '?';
+    final fullName = user.fullName.isNotEmpty ? user.fullName : 'Пользователь';
+    
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -111,27 +123,24 @@ class _ContactsScreenState extends State<ContactsScreen> {
         leading: CircleAvatar(
           backgroundColor: AppTheme.accentColor,
           child: Text(
-            user.initials,
+            initials,
             style: const TextStyle(color: Colors.white),
           ),
         ),
-        title: Text(user.fullName),
-        subtitle: Text(user.email),
-        trailing: IconButton(
-          icon: const Icon(Icons.message, color: AppTheme.accentColor),
-          onPressed: () {
-            // Navigate to chat with this user
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ChatScreen(
-                  chatPartnerId: user.id,
-                  chatPartnerName: user.fullName,
-                ),
+        title: Text(fullName),
+        subtitle: const Text('Нажмите, чтобы начать чат'),
+        trailing: const Icon(Icons.chevron_right, color: AppTheme.accentColor),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ChatScreen(
+                chatPartnerId: user.id,
+                chatPartnerName: fullName,
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }

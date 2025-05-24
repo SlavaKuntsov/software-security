@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
 using SoftwareSecurity.Application.Handlers.Commands.Auth.Registration;
+using SoftwareSecurity.Application.Services;
+using SoftwareSecurity.Domain.Interfaces;
 
 namespace SoftwareSecurity.Application.Extensions;
 
@@ -12,6 +14,8 @@ public static class ApplicationExtensions
 		{
 			cfg.RegisterServicesFromAssemblyContaining<UserRegistrationCommandHandler>();
 		});
+
+		services.AddScoped<IChatService, ChatService>();
 
 		return services;
 	}

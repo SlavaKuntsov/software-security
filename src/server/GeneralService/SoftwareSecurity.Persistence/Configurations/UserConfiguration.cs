@@ -3,16 +3,21 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using SoftwareSecurity.Domain.Enums;
 using SoftwareSecurity.Domain.Models;
+using SoftwareSecurity.Persistence.Converters;
 
 namespace SoftwareSecurity.Persistence.Configurations;
 
-public partial class UserConfiguration : IEntityTypeConfiguration<UserModel>
+public class UserConfiguration : IEntityTypeConfiguration<UserModel>
 {
 	public void Configure(EntityTypeBuilder<UserModel> builder)
 	{
 		builder.ToTable("Users");
 
 		builder.HasKey(u => u.Id);
+
+		builder.Property(u => u.Id)
+			.HasConversion(new UlidToStringConverter())
+			.IsRequired();
 
 		builder.Property(u => u.Email)
 			.IsRequired()
@@ -47,12 +52,19 @@ public partial class UserConfiguration : IEntityTypeConfiguration<UserModel>
 		builder.HasOne(u => u.RefreshToken)
 			.WithOne(r => r.User)
 			.HasForeignKey<RefreshTokenModel>(r => r.UserId);
+		
+		builder.HasMany(u => u.SentMessages)
+			.WithOne(c => c.Sender)
+			.HasForeignKey(c => c.SenderId)
+			.OnDelete(DeleteBehavior.Restrict);
+		
+		builder.HasMany(u => u.ReceivedMessages)
+			.WithOne(c => c.Receiver)
+			.HasForeignKey(c => c.ReceiverId)
+			.OnDelete(DeleteBehavior.Restrict);
 
 		builder.Property(r => r.Id)
-			.HasConversion(
-				v => v.ToString(),
-				v => Ulid.Parse(v)
-			);
+			.HasConversion(new UlidToStringConverter());
 
 		builder.HasData(
 			new UserModel

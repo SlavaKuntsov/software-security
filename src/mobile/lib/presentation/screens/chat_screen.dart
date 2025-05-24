@@ -1,8 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import '../../config/theme.dart';
+import '../../domain/models/chat_message.dart';
+import '../providers/chat_provider.dart';
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
+  final String chatPartnerId;
+  final String chatPartnerName;
+
+  const ChatScreen({
+    super.key, 
+    required this.chatPartnerId,
+    required this.chatPartnerName,
+  });
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -10,26 +21,55 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final _messageController = TextEditingController();
-  final List<_ChatMessage> _messages = [
-    _ChatMessage(
-      sender: 'Пользователь 1',
-      text: 'Привет, как дела?',
-      isMe: false,
-      time: DateTime.now().subtract(const Duration(minutes: 30)),
-    ),
-    _ChatMessage(
-      sender: 'Я',
-      text: 'Отлично! Как у тебя?',
-      isMe: true,
-      time: DateTime.now().subtract(const Duration(minutes: 25)),
-    ),
-    _ChatMessage(
-      sender: 'Пользователь 1',
-      text: 'Всё хорошо, спасибо!',
-      isMe: false,
-      time: DateTime.now().subtract(const Duration(minutes: 20)),
-    ),
-  ];
+  bool _isLoading = false;
+  ChatProvider? _chatProvider;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    // Безопасная инициализация с задержкой для избежания ошибок построения
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initChat();
+    });
+  }
+  
+  // Безопасная инициализация чата
+  Future<void> _initChat() async {
+    if (!mounted) return;
+    
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+    
+    try {
+      _chatProvider = Provider.of<ChatProvider>(context, listen: false);
+      
+      // Check if provider is initialized
+      if (!_chatProvider!.isInitialized) {
+        await _chatProvider!.initialize();
+      }
+      
+      await _chatProvider!.loadChatHistory(widget.chatPartnerId);
+      if (mounted) {
+        await _chatProvider!.markMessagesAsRead();
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = e.toString();
+        });
+      }
+      debugPrint('Error initializing chat: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -39,20 +79,87 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Первичная проверка загрузки в локальном состоянии
+    if (_isLoading) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(widget.chatPartnerName),
+          backgroundColor: AppTheme.primaryColor,
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+    
+    // Обработка локальной ошибки
+    if (_error != null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(widget.chatPartnerName),
+          backgroundColor: AppTheme.primaryColor,
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Ошибка: $_error'),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _initChat,
+                child: const Text('Повторить'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Чат'),
+        title: Text(widget.chatPartnerName),
         backgroundColor: AppTheme.primaryColor,
       ),
       body: Column(
         children: [
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: _messages.length,
-              reverse: false,
-              itemBuilder: (context, index) {
-                return _buildMessageItem(_messages[index]);
+            child: Consumer<ChatProvider>(
+              builder: (context, chatProvider, _) {
+                if (chatProvider.status == ChatStatus.loading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                
+                if (chatProvider.status == ChatStatus.error) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('Ошибка: ${chatProvider.error ?? "Проблема при загрузке сообщений"}'),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: _initChat,
+                          child: const Text('Повторить'),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                
+                final messages = chatProvider.messages;
+                if (messages.isEmpty) {
+                  return const Center(child: Text('Нет сообщений, напишите первым!'));
+                }
+                
+                return ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: messages.length,
+                  reverse: false,
+                  itemBuilder: (context, index) {
+                    if (index >= messages.length) {
+                      return const SizedBox.shrink();
+                    }
+                    final message = messages[index];
+                    return _buildMessageItem(message, chatProvider.isMyMessage(message));
+                  },
+                );
               },
             ),
           ),
@@ -62,18 +169,22 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget _buildMessageItem(_ChatMessage message) {
+  Widget _buildMessageItem(ChatMessage message, bool isMe) {
+    // Защита от пустых строк и null
+    final firstLetter = widget.chatPartnerName.isNotEmpty ? 
+        widget.chatPartnerName[0] : '?';
+    
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
         mainAxisAlignment:
-            message.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+            isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         children: [
-          if (!message.isMe)
+          if (!isMe)
             CircleAvatar(
               backgroundColor: AppTheme.accentColor,
               child: Text(
-                message.sender[0],
+                firstLetter,
                 style: const TextStyle(color: Colors.white),
               ),
             ),
@@ -82,40 +193,45 @@ class _ChatScreenState extends State<ChatScreen> {
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: message.isMe ? AppTheme.accentColor : Colors.grey[300],
+                color: isMe ? AppTheme.accentColor : Colors.grey[300],
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (!message.isMe)
-                    Text(
-                      message.sender,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
-                    ),
                   Text(
-                    message.text,
+                    message.content,
                     style: TextStyle(
-                      color: message.isMe ? Colors.white : Colors.black,
+                      color: isMe ? Colors.white : Colors.black,
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    '${message.time.hour}:${message.time.minute.toString().padLeft(2, '0')}',
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: message.isMe ? Colors.white70 : Colors.black54,
-                    ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '${message.timestamp.hour}:${message.timestamp.minute.toString().padLeft(2, '0')}',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: isMe ? Colors.white70 : Colors.black54,
+                        ),
+                      ),
+                      if (isMe) ...[
+                        const SizedBox(width: 4),
+                        Icon(
+                          message.isRead ? Icons.done_all : Icons.done,
+                          size: 14,
+                          color: Colors.white70,
+                        ),
+                      ],
+                    ],
                   ),
                 ],
               ),
             ),
           ),
           const SizedBox(width: 8),
-          if (message.isMe)
+          if (isMe)
             CircleAvatar(
               backgroundColor: AppTheme.primaryColor,
               child: const Text(
@@ -132,7 +248,7 @@ class _ChatScreenState extends State<ChatScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.primaryColor,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -153,7 +269,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   borderSide: BorderSide.none,
                 ),
                 filled: true,
-                fillColor: Color(0xFFF2F2F2),
+                fillColor: AppTheme.primaryColor,
                 contentPadding:
                     EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               ),
@@ -161,48 +277,97 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
           const SizedBox(width: 8),
-          Container(
-            decoration: const BoxDecoration(
-              color: AppTheme.accentColor,
-              shape: BoxShape.circle,
-            ),
-            child: IconButton(
-              icon: const Icon(Icons.send, color: Colors.white),
-              onPressed: _sendMessage,
-            ),
+          Consumer<ChatProvider>(
+            builder: (context, chatProvider, _) {
+              return Container(
+                decoration: const BoxDecoration(
+                  color: AppTheme.accentColor,
+                  shape: BoxShape.circle,
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.send, color: Colors.white),
+                  onPressed: () => _sendMessage(chatProvider),
+                ),
+              );
+            },
           ),
         ],
       ),
     );
   }
 
-  void _sendMessage() {
+  void _sendMessage(ChatProvider chatProvider) {
     if (_messageController.text.isEmpty) return;
-
-    setState(() {
-      _messages.add(
-        _ChatMessage(
-          sender: 'Я',
-          text: _messageController.text,
-          isMe: true,
-          time: DateTime.now(),
+    
+    final messageText = _messageController.text;
+    _messageController.clear(); // Очищаем ввод сразу
+    
+    // Показываем индикатор отправки
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Отправка сообщения...'),
+        duration: Duration(seconds: 1),
+      ),
+    );
+    
+    try {
+      // Асинхронно отправляем сообщение
+      chatProvider.sendMessage(messageText).then((_) {
+        // Успешная отправка
+        ScaffoldMessenger.of(context).clearSnackBars();
+      }).catchError((e) {
+        // Ошибка отправки
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Ошибка при отправке сообщения: $e'),
+            backgroundColor: Colors.red,
+            action: SnackBarAction(
+              label: 'Повторить',
+              onPressed: () => _retryMessageSend(chatProvider, messageText),
+            ),
+          ),
+        );
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Ошибка при отправке сообщения: $e'),
+          backgroundColor: Colors.red,
         ),
       );
-      _messageController.clear();
-    });
+    }
   }
-}
-
-class _ChatMessage {
-  final String sender;
-  final String text;
-  final bool isMe;
-  final DateTime time;
-
-  _ChatMessage({
-    required this.sender,
-    required this.text,
-    required this.isMe,
-    required this.time,
-  });
+  
+  void _retryMessageSend(ChatProvider chatProvider, String messageText) {
+    try {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Повторная отправка...'),
+          duration: Duration(seconds: 1),
+        ),
+      );
+      
+      chatProvider.sendMessage(messageText).then((_) {
+        ScaffoldMessenger.of(context).clearSnackBars();
+      }).catchError((e) {
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Повторная ошибка: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Ошибка при повторной отправке: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
 } 

@@ -7,9 +7,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SoftwareSecurity.API.Middlewares;
+using SoftwareSecurity.Application.Services;
 using SoftwareSecurity.Domain.Enums;
 using SoftwareSecurity.Domain.Extensions;
+using SoftwareSecurity.Domain.Interfaces;
 using SoftwareSecurity.Infrastructure.Auth;
+using SoftwareSecurity.Persistence.Repositories;
 using Swashbuckle.AspNetCore.Filters;
 using UserService.API.Contracts.Examples;
 
@@ -27,12 +30,14 @@ public static class ApiExtensions
 		services.AddControllers();
 		services.AddEndpointsApiExplorer();
 
+		// Configure SignalR
+		services.AddSignalR();
+
 		services.AddSwaggerGen(
 			options =>
 			{
 				options.SwaggerDoc("v1", new OpenApiInfo { Title = "Mobile API v1", Version = "v1" });
 				options.SwaggerDoc("v2", new OpenApiInfo { Title = "Web API v2", Version = "v2" });
-
 
 				options.ExampleFilters();
 

@@ -22,6 +22,38 @@ namespace SoftwareSecurity.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("SoftwareSecurity.Domain.Models.ChatMessageModel", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("ReceiverId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("SenderId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReceiverId");
+
+                    b.HasIndex("SenderId");
+
+                    b.ToTable("ChatMessages", (string)null);
+                });
+
             modelBuilder.Entity("SoftwareSecurity.Domain.Models.RefreshTokenModel", b =>
                 {
                     b.Property<string>("Id")
@@ -42,6 +74,7 @@ namespace SoftwareSecurity.Persistence.Migrations
                         .HasColumnType("character varying(500)");
 
                     b.Property<string>("UserId")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -95,30 +128,55 @@ namespace SoftwareSecurity.Persistence.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "01JNRHQ3CP4RJBVFD11XVRVQJV",
+                            Id = "01JVZYXMSKFSR5K60HEX1JRSFB",
                             AuthType = "Login",
                             DateOfBirth = "",
                             Email = "admin@email.com",
                             FirstName = "admin",
                             LastName = "admin",
-                            Password = "$2a$11$5CPNAx4Oj8BvZtDgo5pbB.ho/wOZKGTEGah1UH4WRR6zc0lFgTpIi",
+                            Password = "$2a$11$93IcSDwtJHmhOqORp4qd6uk0LAonf54Y607jeOhC.ZnkrSRjUTfvK",
                             Role = "Admin"
                         });
+                });
+
+            modelBuilder.Entity("SoftwareSecurity.Domain.Models.ChatMessageModel", b =>
+                {
+                    b.HasOne("SoftwareSecurity.Domain.Models.UserModel", "Receiver")
+                        .WithMany("ReceivedMessages")
+                        .HasForeignKey("ReceiverId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SoftwareSecurity.Domain.Models.UserModel", "Sender")
+                        .WithMany("SentMessages")
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Receiver");
+
+                    b.Navigation("Sender");
                 });
 
             modelBuilder.Entity("SoftwareSecurity.Domain.Models.RefreshTokenModel", b =>
                 {
                     b.HasOne("SoftwareSecurity.Domain.Models.UserModel", "User")
                         .WithOne("RefreshToken")
-                        .HasForeignKey("SoftwareSecurity.Domain.Models.RefreshTokenModel", "UserId");
+                        .HasForeignKey("SoftwareSecurity.Domain.Models.RefreshTokenModel", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
 
             modelBuilder.Entity("SoftwareSecurity.Domain.Models.UserModel", b =>
                 {
+                    b.Navigation("ReceivedMessages");
+
                     b.Navigation("RefreshToken")
                         .IsRequired();
+
+                    b.Navigation("SentMessages");
                 });
 #pragma warning restore 612, 618
         }

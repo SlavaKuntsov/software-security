@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../config/environment_config.dart';
 import 'certificate_loader.dart';
 
@@ -13,6 +14,7 @@ class SecureHttpClient {
 
   static Future<Dio> createDio() async {
     final dio = Dio();
+    final prefs = await SharedPreferences.getInstance();
     
     // Настраиваем валидацию статусов ответа
     dio.options.validateStatus = (status) {
@@ -21,6 +23,20 @@ class SecureHttpClient {
     
     // Добавляем базовый URL для всех запросов
     dio.options.baseUrl = EnvironmentConfig.baseUrl;
+    
+    // Add auth token interceptor
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          // Get the token from shared preferences
+          final token = prefs.getString('access_token');
+          if (token != null && token.isNotEmpty) {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
+          return handler.next(options);
+        },
+      ),
+    );
     
     if (EnvironmentConfig.isProduction()) {
       // В продакшене настраиваем Dio использовать наши сертификаты

@@ -2,7 +2,6 @@
 
 using SoftwareSecurity.Application.DTOs;
 using SoftwareSecurity.Application.Exceptions;
-using SoftwareSecurity.Application.Handlers.Queries.Users.GetUserByEmail;
 using SoftwareSecurity.Domain.Extensions;
 using SoftwareSecurity.Domain.Interfaces.Repositories;
 

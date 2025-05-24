@@ -3,6 +3,11 @@ import '../config/environment_config.dart';
 class ApiConstants {
   // Base URL for all services
   static String get baseUrl => EnvironmentConfig.baseUrl;
+  
+  // Base URL без /api/v1 для SignalR хабов
+  
+  // SignalR хабы
+  static String get chatHub => '$baseUrl/chatHub';
 
   // User Service Endpoints
   static String get userServicePath => '$baseUrl/users';
@@ -21,7 +26,13 @@ class ApiConstants {
   static String get refreshToken => '$baseUrl/auth/refresh-token';
   static String get authorize => '$baseUrl/auth/authorize';
   static String get notifications => '$baseUrl/notifications';
-  static String get notificationsHub => '$baseUrl/notificationsHub';
+  
+  // Chat endpoints
+  static String get chatUsers => '$baseUrl/chat/users';
+  static String get chatHistory => '$baseUrl/chat/history';
+  static String getChatHistory(String receiverId) => '$baseUrl/chat/history/$receiverId';
+  static String markMessagesAsRead(String senderId) => '$baseUrl/chat/mark-read/$senderId';
+  static String get chatUnread => '$baseUrl/chat/unread';
 
   // Admin API endpoints
   static String getAllUsers() => '$baseUrl/users';

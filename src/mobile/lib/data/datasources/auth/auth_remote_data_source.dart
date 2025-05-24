@@ -164,7 +164,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         throw const UnauthorizedException();
       }
 
-      final response = await client.get('/auth/user');
+      final response = await client.get('${ApiConstants.baseUrl}/auth/user');
       return UserModel.fromJson(response);
     } catch (e) {
       throw AuthException(e.toString());

@@ -76,5 +76,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+// app.MapHub<ChatHub>("/api/v1/chatHub");
 
 app.Run();

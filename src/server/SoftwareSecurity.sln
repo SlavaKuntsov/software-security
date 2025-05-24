@@ -22,6 +22,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A70A0217-8E3
 		..\openapi.yaml = ..\openapi.yaml
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftwareSecurity.Tests", "GeneralService\SoftwareSecurity.Tests\SoftwareSecurity.Tests.csproj", "{53E13A7D-A4D9-4EA6-A467-1E6BD8D44DF1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,6 +50,10 @@ Global
 		{CE37E40D-06EC-401E-9630-2CFF1AB252BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CE37E40D-06EC-401E-9630-2CFF1AB252BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CE37E40D-06EC-401E-9630-2CFF1AB252BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{53E13A7D-A4D9-4EA6-A467-1E6BD8D44DF1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{53E13A7D-A4D9-4EA6-A467-1E6BD8D44DF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{53E13A7D-A4D9-4EA6-A467-1E6BD8D44DF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53E13A7D-A4D9-4EA6-A467-1E6BD8D44DF1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{3538987A-256D-4CF9-BDE1-7DAF1ECBC2D6} = {8C07907F-90A0-47DB-88A8-F3BAB1E8FFE7}
@@ -56,5 +62,6 @@ Global
 		{68DE5508-F28C-48B4-B322-57D5F1263339} = {8C07907F-90A0-47DB-88A8-F3BAB1E8FFE7}
 		{CE37E40D-06EC-401E-9630-2CFF1AB252BE} = {8C07907F-90A0-47DB-88A8-F3BAB1E8FFE7}
 		{8C07907F-90A0-47DB-88A8-F3BAB1E8FFE7} = {A70A0217-8E3F-46E1-A425-10970A9D87AF}
+		{53E13A7D-A4D9-4EA6-A467-1E6BD8D44DF1} = {8C07907F-90A0-47DB-88A8-F3BAB1E8FFE7}
 	EndGlobalSection
 EndGlobal

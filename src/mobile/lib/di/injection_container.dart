@@ -8,6 +8,8 @@ import '../core/constants/oauth_constants.dart';
 import '../core/network/api_client.dart';
 import '../core/network/network_info.dart';
 import '../core/network/secure_http_client.dart';
+import '../core/services/chat_service.dart';
+import '../core/services/signalr_service.dart';
 import '../data/datasources/auth/auth_remote_data_source.dart';
 import '../data/datasources/auth/google_auth_service.dart';
 import '../data/repositories/auth_repository_impl.dart';
@@ -16,6 +18,7 @@ import '../domain/usecases/auth/google_sign_in.dart';
 import '../domain/usecases/auth/login.dart';
 import '../domain/usecases/auth/registration.dart';
 import '../presentation/providers/auth_provider.dart';
+import '../presentation/providers/chat_provider.dart';
 import '../presentation/providers/theme_provider.dart';
 
 final sl = GetIt.instance;
@@ -33,6 +36,23 @@ Future<void> init() async {
     ),
   );
   sl.registerFactory(() => ThemeProvider());
+  sl.registerFactory(
+    () => ChatProvider(
+      chatService: sl(),
+      authProvider: sl(),
+    ),
+  );
+
+  // Services
+  sl.registerLazySingleton(
+    () => SignalRService(accessToken: sl<SharedPreferences>().getString('access_token')),
+  );
+  sl.registerLazySingleton(
+    () => ChatService(
+      dio: sl(),
+      signalRService: sl(),
+    ),
+  );
 
   // Use cases
   sl.registerLazySingleton(() => LoginUseCase(sl()));

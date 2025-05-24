@@ -5,8 +5,6 @@ namespace SoftwareSecurity.Domain.Models;
 public class UserModel
 {
 	public Ulid Id { get; set; }
-	// TODO maybe add for OAuth
-	//public string GoogleId { get; set; }
 	public string Email { get; set; } = string.Empty;
 	public string Password { get; set; } = string.Empty;
 	public Role Role { get; set; }
@@ -16,6 +14,8 @@ public class UserModel
 	public AuthType AuthType { get; set; }
 
 	public virtual RefreshTokenModel RefreshToken { get; set; } = null!;
+	public virtual ICollection<ChatMessageModel> SentMessages { get; set; } = [];
+	public virtual ICollection<ChatMessageModel> ReceivedMessages { get; set; } = [];
 
 	public UserModel() { }
 
