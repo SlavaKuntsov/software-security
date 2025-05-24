@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Вычисление HASH значения ===</title>
+</head>
+<script async src="ec.js"></script>
+<style>
+    input {
+        margin: 10px 0 10px 0;
+    }
+</style>
+
+<body>
+    <p>
+    <h1> Расчет хэш-значения от сообщения</h1>
+    </p> <b>
+        <label for="id_data">Данные для хэширования (в HEX)</label><br>
+        <textarea id="id_data" rows="5" cols="66"></textarea></br>
+
+        <input type="text" placeholder="Хэш значение (hex)" size="80" id="id_hash" readonly><br>
+        <input type="text" placeholder="Время вычисления (сек)" size="80" id="id_time" readonly><br>
+
+        <button onclick="loadParam()">Загрузить тестовые данные</button>
+        <button onclick="calculateHash()">Вычислить хэш-значение</button>
+    </b>
+</body>
+
+<script>
+    // Функция загрузки в форму ввода тестовых значений
+    function loadParam() {
+        document.getElementById("id_data").value = "1412345678068E78C3050B110B230A050B110B230A00120000000000000000000000";
+    }
+
+    const fromHexString = (hexString) =>
+        Uint8Array.from(hexString.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)));
+
+    const toHexString = (bytes) =>
+        bytes.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
+
+    //  функция вычисления хэш-значения
+    // входные параметры:
+    //  data -  данные сообщения для хэширования
+    // выходные параметры:
+    // result - JSON объект c полями:  digest - хэш-значение, time - время вычисления
+    function calculateHash() {
+        let data = document.getElementById("id_data").value;
+        let js_calcDigest = Module.cwrap("calcDigest", 'string', ["array", "number"]);
+        let result = JSON.parse(js_calcDigest(data, data.length));
+        console.log(result);
+        document.getElementById("id_hash").value = result.digest;
+        document.getElementById("id_time").value = result.time;
+    }
+</script>
+
+</html
