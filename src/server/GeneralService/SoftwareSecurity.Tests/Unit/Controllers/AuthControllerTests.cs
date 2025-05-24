@@ -78,7 +78,14 @@ public class AuthControllerTests
 		// Assert
 		Assert.NotNull(result);
 		Assert.Equal(200, result.StatusCode);
-		Assert.Equal(accessTokenDTO, result.Value);
+    
+		// ✅ Используйте динамический объект или рефлексию
+		var actualValue = result.Value;
+		var accessTokenProperty = actualValue?.GetType().GetProperty("AccessToken");
+		var refreshTokenProperty = actualValue?.GetType().GetProperty("RefreshToken");
+    
+		Assert.Equal(accessTokenDTO.AccessToken, accessTokenProperty?.GetValue(actualValue));
+		Assert.Equal(accessTokenDTO.RefreshToken, refreshTokenProperty?.GetValue(actualValue));
 	}
 
 	[Fact]
