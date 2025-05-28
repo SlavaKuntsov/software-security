@@ -9,41 +9,33 @@ using SoftwareSecurity.Domain.Enums;
 
 namespace SoftwareSecurity.Application.Services;
 
-public class ChatService : IChatService
+public class ChatService(IChatRepository chatRepository, IUsersRepository userRepository)
+    : IChatService
 {
-    private readonly IChatRepository _chatRepository;
-    private readonly IUsersRepository _userRepository;
-
-    public ChatService(IChatRepository chatRepository, IUsersRepository userRepository)
-    {
-        _chatRepository = chatRepository;
-        _userRepository = userRepository;
-    }
-
     public async Task<IEnumerable<ChatMessageModel>> GetChatHistoryAsync(Ulid senderId, Ulid receiverId)
     {
-        return await _chatRepository.GetChatHistoryAsync(senderId, receiverId);
+        return await chatRepository.GetChatHistoryAsync(senderId, receiverId);
     }
 
     public async Task<ChatMessageModel> SendMessageAsync(Ulid senderId, Ulid receiverId, string content)
     {
         var message = new ChatMessageModel(senderId, receiverId, content);
-        return await _chatRepository.SaveMessageAsync(message);
+        return await chatRepository.SaveMessageAsync(message);
     }
 
     public async Task MarkMessagesAsReadAsync(Ulid receiverId, Ulid senderId)
     {
-        await _chatRepository.MarkMessagesAsReadAsync(receiverId, senderId);
+        await chatRepository.MarkMessagesAsReadAsync(receiverId, senderId);
     }
 
     public async Task<IEnumerable<UserModel>> GetAllUsersExceptCurrentAsync(Ulid currentUserId)
     {
-        var allUsers = await _userRepository.GetAsync(CancellationToken.None);
+        var allUsers = await userRepository.GetAsync(CancellationToken.None);
         return allUsers.Where(u => u.Id != currentUserId && u.Role != Role.Admin);
     }
 
     public async Task<int> GetUnreadMessageCountAsync(Ulid userId)
     {
-        return await _chatRepository.GetUnreadMessageCountAsync(userId);
+        return await chatRepository.GetUnreadMessageCountAsync(userId);
     }
 } 

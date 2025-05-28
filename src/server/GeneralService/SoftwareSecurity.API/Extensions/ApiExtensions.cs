@@ -1,5 +1,8 @@
-﻿using System.Text;
+﻿using System.Reflection;
+using System.Text;
 using Asp.Versioning;
+using Mapster;
+using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -74,6 +77,12 @@ public static class ApiExtensions
 		services.AddMediatR(
 			cfg =>
 				cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+		
+		var typeAdapterConfig = TypeAdapterConfig.GlobalSettings;
+		typeAdapterConfig.Scan(Assembly.GetExecutingAssembly());
+
+		Mapper mapperConfig = new(typeAdapterConfig);
+		services.AddSingleton<IMapper>(mapperConfig);
 
 		return services;
 	}

@@ -17,21 +17,16 @@ public class UserRegistrationCommandHandler(
 	IJwt jwt)
 	: IRequestHandler<UserRegistrationCommand, AuthDTO>
 {
-	private readonly IUsersRepository _usersRepository = usersRepository;
-	private readonly IPasswordHash _passwordHash = passwordHash;
-	private readonly IApplicationDbContext _context = context;
-	private readonly IJwt _jwt = jwt;
-
 	public async Task<AuthDTO> Handle(UserRegistrationCommand request, CancellationToken cancellationToken)
 	{
-		var id = await _usersRepository.GetIdAsync(request.Email, cancellationToken);
+		var id = await usersRepository.GetIdAsync(request.Email, cancellationToken);
 
 		if (id!.Value != Ulid.Empty)
 			throw new AlreadyExistsException($"User with email {request.Email} already exists");
 
 		var userModel = new UserModel(
 			request.Email,
-			request.Password != string.Empty ? _passwordHash.Generate(request.Password) : "",
+			request.Password != string.Empty ? passwordHash.Generate(request.Password) : "",
 			Role.User,
 			request.AuthType,
 			request.FirstName,
@@ -40,20 +35,20 @@ public class UserRegistrationCommandHandler(
 
 		var role = Role.User;
 
-		var accessToken = _jwt.GenerateAccessToken(userModel.Id, role);
-		var refreshToken = _jwt.GenerateRefreshToken();
+		var accessToken = jwt.GenerateAccessToken(userModel.Id, role);
+		var refreshToken = jwt.GenerateRefreshToken();
 
 		var refreshTokenModel = new RefreshTokenModel(
 				userModel.Id,
 				refreshToken,
-				_jwt.GetRefreshTokenExpirationDays());
+				jwt.GetRefreshTokenExpirationDays());
 
-		await _usersRepository.CreateAsync(
+		await usersRepository.CreateAsync(
 			userModel,
 			refreshTokenModel,
 			cancellationToken);
 
-		await _context.SaveChangesAsync(cancellationToken);
+		await context.SaveChangesAsync(cancellationToken);
 
 		return new AuthDTO(accessToken, refreshToken);
 	}

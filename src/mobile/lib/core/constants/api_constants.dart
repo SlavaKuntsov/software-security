@@ -15,8 +15,8 @@ class ApiConstants {
 
   // Auth endpoints в User Service
   static String get login => '$baseUrl/auth/login';
-  static String get users => '$baseUrl/auth';
-  static String get delete => '$baseUrl/auth/me';
+  static String get users => '$baseUrl/users';
+  static String get delete => '$baseUrl/users/me';
   static String get register => '$baseUrl/auth/registration';
   static String get googleAuth => '$baseUrl/auth/google-login';
   static String get googleResponse =>
